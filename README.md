@@ -40,7 +40,7 @@ The case is designed using OpenSCAD and consists of two main parts:
 ## Dimensions
 
 - **Board Size**: Approximately 254mm x 203mm (10" x 8")
-- **Total Case Length** (with SATA extension): 393mm
+- **Total Case Length** (with SATA extension): 390mm
 - **Total Case Width** (with side clearance): 239mm
 - **Bottom Case Height**: 7mm (base + clearance)
 - **Top Case Height**: 10mm (lip + top)
@@ -69,15 +69,19 @@ The case is designed using OpenSCAD and consists of two main parts:
 
 2. **Generate STL Files**:
    
-   For the **bottom case**:
+   Use the provided script:
    ```bash
-   openscad -o case_bottom.stl -D 'case_bottom();' acer_case.scad
+   ./generate_stl.sh
    ```
    
-   For the **top case**:
+   Or manually with OpenSCAD:
+   
+   For the **bottom case** (default rendering):
    ```bash
-   openscad -o case_top.stl -D 'case_top();' acer_case.scad
+   openscad -o case_bottom.stl acer_case.scad
    ```
+   
+   For the **top case** (uncomment the top rendering in the file first, or use the script)
 
 3. **Slice and Print**:
    - Import STL files into your slicer (Cura, PrusaSlicer, etc.)

@@ -28,6 +28,7 @@ echo ""
 # Generate bottom case
 echo "Generating case bottom STL..."
 echo "This may take several minutes..."
+echo "Rendering case_bottom() module..."
 openscad -o output/case_bottom.stl acer_case.scad 2>&1 | tail -5
 if [ -f output/case_bottom.stl ]; then
     echo "✓ Bottom case generated: output/case_bottom.stl"

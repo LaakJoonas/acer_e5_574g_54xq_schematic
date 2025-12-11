@@ -11,7 +11,7 @@ This document provides detailed specifications for the Acer E5-574G 3D-printable
 - **Base Thickness**: 2mm
 
 ### Total Case Dimensions
-- **Length** (with SATA extension): 393mm
+- **Length** (with SATA extension): 390mm
 - **Width** (with side clearance): 239mm
 - **Bottom Height**: 7mm (2mm base + 5mm clearance)
 - **Top Height**: 10mm (8mm lip + 2mm top)
