@@ -23,8 +23,8 @@ board_width = 195;       // ~7660 mils = ~195mm (Y direction)
 board_thickness = 1.6;   // Standard PCB thickness
 
 /* [Case Parameters] */
-// Wall thickness for 3D printing strength
-wall_thickness = 2.5;
+// Wall thickness for 3D printing strength (3mm recommended for durability)
+wall_thickness = 3.0;
 
 // Height of elevated sides
 side_height = 15;
@@ -155,7 +155,9 @@ sata_hdd_y = schem_to_board_y(2114.170);  // CN10
 sata_odd_y = schem_to_board_y(4315.300);  // CN15
 
 // Power connector (right side, near top - placed at fan cutout start as specified)
-power_y = board_width - 20;  // Near fan area, adjusted for non-schematic position
+// Power connector positioned offset from top edge at fan area
+power_connector_offset = 20;  // Distance from board top edge
+power_y = board_width - power_connector_offset;  // Near fan area, adjusted for non-schematic position
 power_width = 15;
 power_height = 8;
 
@@ -168,6 +170,16 @@ fan_y = schem_to_board_y(4643.710);
 sata_drive_width = 69.85;
 sata_drive_length = 100.2;
 sata_drive_height = 9.5;  // 9.5mm height variant
+
+// SATA area positioning parameters
+sata_area_offset_x = 5;   // Gap between board edge and SATA area
+sata_hdd_center_offset = 35;  // Offset from SATA connector to drive center positioning
+sata_standoff_extra_height = 3;  // Additional height for SATA drive standoffs
+
+// SATA connector cutout dimensions
+sata_connector_cutout_half_width = 20;  // Half-width of SATA connector cutout
+sata_connector_cutout_width = 40;       // Total width of SATA connector cutout
+sata_connector_cutout_height = 15;      // Height of SATA connector cutout
 
 // SATA drive screw positions (standard 2.5" form factor)
 // Side mounting holes at 14mm and 90.6mm from connector end
@@ -215,7 +227,8 @@ module snap_clip(width=10, depth=5, height=10) {
 // Module: Ventilation grille (3D-printable friendly)
 module ventilation_grille(length, width, bar_w, gap_w, thickness) {
     // Creates a printable grille pattern with bars running in one direction
-    num_bars = floor((width - bar_w) / (bar_w + gap_w));
+    // Corrected calculation to prevent bars extending beyond boundary
+    num_bars = floor((width + gap_w) / (bar_w + gap_w)) - 1;
     
     for (i = [0:num_bars]) {
         y_pos = bar_w/2 + i * (bar_w + gap_w);
@@ -300,15 +313,15 @@ module case_top() {
                 
             // SATA extension area screw standoffs
             // Standard 2.5" SATA drive mounting holes
-            sata_area_start_x = board_offset_x + board_length + 5;
-            sata_area_start_y = board_offset_y + sata_hdd_y - 35;
+            sata_area_start_x = board_offset_x + board_length + sata_area_offset_x;
+            sata_area_start_y = board_offset_y + sata_hdd_y - sata_hdd_center_offset;
             
             for (pos = sata_drive_screw_positions) {
                 translate([sata_area_start_x + pos[0], 
                           sata_area_start_y + pos[1], 
                           wall_thickness]) {
                     screw_standoff(
-                        height = standoff_height + 3,  // Slightly taller for drive
+                        height = standoff_height + sata_standoff_extra_height,  // Slightly taller for drive
                         outer_dia = 7,
                         hole_dia = sata_screw_hole_diameter
                     );
@@ -343,12 +356,16 @@ module case_top() {
             port_cutout(usb2_width, usb2_height);
         
         // SATA HDD opening (large cutout for cable/connector)
-        translate([case_length - wall_thickness - 0.5, board_offset_y + sata_hdd_y - 20, wall_thickness + standoff_height - 5])
-            cube([wall_thickness + 1, 40, 15]);
+        translate([case_length - wall_thickness - 0.5, 
+                  board_offset_y + sata_hdd_y - sata_connector_cutout_half_width, 
+                  wall_thickness + standoff_height - sata_area_offset_x])
+            cube([wall_thickness + 1, sata_connector_cutout_width, sata_connector_cutout_height]);
         
         // SATA ODD opening
-        translate([case_length - wall_thickness - 0.5, board_offset_y + sata_odd_y - 20, wall_thickness + standoff_height - 5])
-            cube([wall_thickness + 1, 40, 15]);
+        translate([case_length - wall_thickness - 0.5, 
+                  board_offset_y + sata_odd_y - sata_connector_cutout_half_width, 
+                  wall_thickness + standoff_height - sata_area_offset_x])
+            cube([wall_thickness + 1, sata_connector_cutout_width, sata_connector_cutout_height]);
         
         // Power connector (at fan cutout start on longer side as specified)
         // Positioned on the right side where fan area starts
@@ -503,6 +520,9 @@ module case_bottom() {
 /*        PREVIEW/ASSEMBLY        */
 /* ============================== */
 
+// Preview positioning offset
+preview_bottom_offset = 5;  // Gap between top and bottom case in preview
+
 module assembly_preview() {
     // Top case
     color("DarkSlateGray", 0.7)
@@ -512,7 +532,7 @@ module assembly_preview() {
     color("SlateGray", 0.7)
         translate([wall_thickness + board_clearance, 
                   wall_thickness + board_clearance, 
-                  -feet_height - wall_thickness - 5])
+                  -feet_height - wall_thickness - preview_bottom_offset])
             case_bottom();
     
     // Board representation (for reference)
@@ -522,9 +542,9 @@ module assembly_preview() {
     
     // 2.5" SATA drive representation
     color("Silver", 0.5)
-        translate([board_offset_x + board_length + 10, 
-                  board_offset_y + schem_to_board_y(2114.170) - 35, 
-                  wall_thickness + standoff_height + 3])
+        translate([board_offset_x + board_length + sata_area_offset_x + 5, 
+                  board_offset_y + schem_to_board_y(2114.170) - sata_hdd_center_offset, 
+                  wall_thickness + standoff_height + sata_standoff_extra_height])
             cube([sata_drive_length, sata_drive_width, sata_drive_height]);
 }
 
