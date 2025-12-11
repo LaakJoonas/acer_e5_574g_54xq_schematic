@@ -1,0 +1,19 @@
+# 3D printing artifacts
+*.stl
+*.obj
+*.3mf
+*.gcode
+
+# OpenSCAD cache
+*.csg
+*.off
+*.echo
+
+# Temporary files
+*.tmp
+*~
+.DS_Store
+
+# Build directories
+/build/
+/output/
