@@ -1,16 +1,23 @@
 // Acer E5-574G-54XQ Laptop Motherboard Case
 // Generated from QUANTA ZRT DA0ZRTMB6D0 schematic
 // 
+// ORIENTATION: The schematic shows the TOP view (keyboard side facing up).
+// - Screws insert from the TOP (schematic view) into BOTTOM case standoffs
+// - Fan pulls air from TOP side - needs grille in component-free area
+// - Heatsink is after VGA port area - needs cutout on the side
+// - Power connector is on opposite side from SATA, ~13cm from SATA side
+//
 // This OpenSCAD file creates a 3D-printable case with:
-// - Top part with elevated sides and screw holes
-// - Bottom part with ventilation grille and feet
+// - Bottom part with screw standoffs (board mounts here, screws from top)
+// - Top part (cover) with ventilation grille for fan and CPU cooling
 // - Port cutouts for USB, Ethernet, SD Card, Power, SATA
-// - Screw standoffs positioned according to schematic
 // - SATA extension area (130mm) for 2.5" SATA drive and optical drive caddy
+// - Separate attachable feet for airflow
+// - Separate clip attachments for assembly (printed separately)
 
 /* [Render Options] */
 // What to render
-render_part = "all"; // ["top", "bottom", "all", "preview"]
+render_part = "all"; // ["top", "bottom", "feet", "clips", "all", "preview"]
 
 /* [Board Dimensions] */
 // Board dimensions (converted from mils to mm)
@@ -38,13 +45,33 @@ cable_clearance = 15;
 // SATA extension length (130mm as specified)
 sata_extension = 130;
 
-// Bottom case feet height
-feet_height = 5;
+// Attachable feet height for airflow
+feet_height = 8;
 
 // Ventilation grille parameters
 grille_bar_width = 2.5;      // Width of each grille bar (printable with consumer printers)
 grille_gap_width = 4;        // Gap between bars for airflow
-grille_margin = 10;          // Margin from edges for structural strength
+grille_margin = 8;           // Margin from grille edges for structural strength
+
+/* [Fan and Heatsink Area] */
+// Fan area - Fan is a blower style near VGA port
+// Fan connector at CN16: (3636.800, 4643.710) in schematic coords
+// Heatsink is between VGA port and board edge - needs cutout on side
+fan_grille_start_x = 50;     // Start of fan grille area X (mm from board origin)
+fan_grille_start_y = 120;    // Start of fan grille area Y (mm from board origin)
+fan_grille_length = 80;      // Length of fan grille in X
+fan_grille_width = 60;       // Width of fan grille in Y
+
+// Heatsink cutout dimensions (on the side, after VGA port)
+heatsink_cutout_start_y = 115;  // mm from board origin (after VGA port)
+heatsink_cutout_length = 60;    // Length along the board edge
+heatsink_cutout_height = 15;    // Height of cutout
+
+// CPU area ventilation (center of board for CPU cooling)
+cpu_grille_start_x = 100;    // Start X position (mm from board origin)
+cpu_grille_start_y = 80;     // Start Y position
+cpu_grille_length = 80;      // Length of CPU grille in X
+cpu_grille_width = 70;       // Width of CPU grille in Y
 
 /* [Screw Parameters] */
 // M3 screw parameters (typical laptop screws)
@@ -52,7 +79,7 @@ screw_hole_diameter = 3.2;   // Slightly larger for easy fit
 screw_head_diameter = 6;
 screw_head_depth = 2;
 standoff_outer_diameter = 8;
-standoff_height = 5;         // Height above board level
+standoff_height = 5;         // Height above case floor for board to sit on
 
 // SATA screw parameters (2.5" drive standard M3 screws)
 sata_screw_hole_diameter = 3.2;
@@ -84,7 +111,7 @@ function schem_to_board_y(y) = mils_to_mm(y - schematic_origin_y);
 
 // Screw standoff positions from schematic (converted to board-relative mm)
 // Format: [x, y, hole_type, drill_diameter_mm]
-// Drill diameters from schematic: DRILL_XXX where XXX is diameter in mils * 10
+// NOTE: These standoffs are on the BOTTOM case since screws insert from TOP (schematic view)
 
 screw_holes = [
     // Main motherboard mounting holes
@@ -115,8 +142,9 @@ screw_holes = [
 
 /* [Port Positions from Schematic] */
 // All port positions converted from schematic coordinates to board-relative mm
+// Ports are on the LEFT side (low X in schematic) for USB3, HDMI, LAN, VGA
 
-// USB 3.0 ports (left side of board)
+// USB 3.0 ports (left side of board - low X coordinates)
 usb3_1_y = schem_to_board_y(2118.110);  // CN11
 usb3_2_y = schem_to_board_y(1409.440);  // CN8
 usb_width = 15;
@@ -137,31 +165,32 @@ vga_y = schem_to_board_y(4700.790);     // CN17
 vga_width = 32;
 vga_height = 12;
 
-// SD Card slot (bottom edge, left area)
+// SD Card slot (front/bottom edge of board)
 sd_x = schem_to_board_x(2440.750);      // CN1
 sd_y = schem_to_board_y(1062.990);
 sd_width = 30;
 sd_height = 3;
 
-// USB 2.0 (right side, near bottom)
-usb2_y = schem_to_board_y(976.380);     // CN6
+// USB 2.0 - Repositioned near RAM sticks on SD card slot side (front edge)
+// Per user: should be near RAM/SD card area
+usb2_x = sd_x + sd_width + 25;          // Next to SD card slot
 usb2_width = 15;
 usb2_height = 7;
 
-// SATA HDD connector (right edge)
+// SATA HDD connector (right edge - high X coordinates)
 sata_hdd_y = schem_to_board_y(2114.170);  // CN10
 
 // SATA ODD connector (right edge)
 sata_odd_y = schem_to_board_y(4315.300);  // CN15
 
-// Power connector (right side, near top - placed at fan cutout start as specified)
-// Power connector positioned offset from top edge at fan area
-power_connector_offset = 20;  // Distance from board top edge
-power_y = board_width - power_connector_offset;  // Near fan area, adjusted for non-schematic position
+// Power connector - positioned on opposite side from SATA
+// Per user: ~13cm from SATA side, on the back edge perpendicular to fan area
+// The back edge is at Y = board_width, power is ~13cm from the SATA side
+power_connector_x = 130;     // ~13cm from the SATA end (measured from left)
 power_width = 15;
 power_height = 8;
 
-// Fan area (for power connector placement reference)
+// Fan connector (for reference)
 fan_x = schem_to_board_x(3636.800);     // CN16
 fan_y = schem_to_board_y(4643.710);
 
@@ -177,12 +206,11 @@ sata_hdd_center_offset = 35;  // Offset from SATA connector to drive center posi
 sata_standoff_extra_height = 3;  // Additional height for SATA drive standoffs
 
 // SATA connector cutout dimensions
-sata_connector_cutout_half_width = 20;  // Half-width of SATA connector cutout
-sata_connector_cutout_width = 40;       // Total width of SATA connector cutout
-sata_connector_cutout_height = 15;      // Height of SATA connector cutout
+sata_connector_cutout_half_width = 20;
+sata_connector_cutout_width = 40;
+sata_connector_cutout_height = 15;
 
 // SATA drive screw positions (standard 2.5" form factor)
-// Side mounting holes at 14mm and 90.6mm from connector end
 sata_drive_screw_positions = [
     [14, 3],        // Front left
     [14, 69.85-3],  // Front right
@@ -194,7 +222,7 @@ sata_drive_screw_positions = [
 /*        MODULES                 */
 /* ============================== */
 
-// Module: Screw standoff with hole
+// Module: Screw standoff with hole (for bottom case)
 module screw_standoff(height, outer_dia, hole_dia, head_dia=0, head_depth=0) {
     difference() {
         cylinder(h=height, d=outer_dia, $fn=32);
@@ -207,40 +235,33 @@ module screw_standoff(height, outer_dia, hole_dia, head_dia=0, head_depth=0) {
     }
 }
 
-// Module: Clip/snap-fit attachment point (alternative to screws)
-module snap_clip(width=10, depth=5, height=10) {
-    // Create a flexible clip that can snap onto the bottom case
-    difference() {
-        union() {
-            cube([width, depth, height]);
-            // Snap ridge
-            translate([0, depth-1, height-2])
-                rotate([0, 90, 0])
-                    cylinder(h=width, d=2, $fn=16);
+// Module: Ventilation grille (actual holes for airflow)
+module ventilation_grille_holes(length, width, bar_w, gap_w, thickness) {
+    // Creates actual holes in the material for airflow
+    num_bars_y = floor(width / (bar_w + gap_w));
+    
+    // Create horizontal slots
+    for (i = [0:num_bars_y-1]) {
+        y_pos = i * (bar_w + gap_w) + gap_w/2;
+        if (y_pos + gap_w <= width) {
+            translate([-0.1, y_pos, -0.1])
+                cube([length + 0.2, gap_w, thickness + 0.2]);
         }
-        // Slot for flexibility
-        translate([width/2 - 1, -0.1, height/3])
-            cube([2, depth+0.2, height/2]);
     }
 }
 
-// Module: Ventilation grille (3D-printable friendly)
-module ventilation_grille(length, width, bar_w, gap_w, thickness) {
-    // Creates a printable grille pattern with bars running in one direction
-    // Corrected calculation to prevent bars extending beyond boundary
-    num_bars = floor((width + gap_w) / (bar_w + gap_w)) - 1;
-    
-    for (i = [0:num_bars]) {
-        y_pos = bar_w/2 + i * (bar_w + gap_w);
-        if (y_pos + bar_w/2 <= width) {
-            translate([0, y_pos - bar_w/2, 0])
-                cube([length, bar_w, thickness]);
-        }
+// Module: Rectangular grille pattern (printable)
+// Note: This module creates a standalone grille piece if needed separately
+module printable_grille(length, width, bar_w, gap_w, thickness) {
+    // Creates a grille with bars - the solid parts that remain after cutting
+    difference() {
+        cube([length, width, thickness]);
+        ventilation_grille_holes(length, width, bar_w, gap_w, thickness);
     }
 }
 
 // Module: Port cutout
-module port_cutout(width, height, depth=wall_thickness+1, extra_clearance=0.5) {
+module port_cutout(width, height, depth, extra_clearance=0.5) {
     cube([depth, width + extra_clearance*2, height + extra_clearance*2]);
 }
 
@@ -258,26 +279,79 @@ module rounded_rect(length, width, height, radius) {
     }
 }
 
-/* ============================== */
-/*        TOP CASE                */
-/* ============================== */
-
-module case_top() {
+// Module: Attachable foot (printed separately)
+module attachable_foot() {
+    foot_base_dia = 15;
+    foot_top_dia = 12;
+    foot_total_height = feet_height;
+    mount_hole_dia = 3.2;  // For M3 screw
+    
     difference() {
         union() {
-            // Main case shell
+            // Tapered foot
+            cylinder(h=foot_total_height, d1=foot_base_dia, d2=foot_top_dia, $fn=32);
+            // Mounting flange
+            translate([0, 0, foot_total_height])
+                cylinder(h=3, d=foot_base_dia + 4, $fn=32);
+        }
+        // Mounting hole through center
+        translate([0, 0, -0.1])
+            cylinder(h=foot_total_height + 3.2, d=mount_hole_dia, $fn=24);
+        // Countersink for screw head
+        translate([0, 0, -0.1])
+            cylinder(h=2.1, d=6, $fn=24);
+    }
+}
+
+// Module: Attachable clip (printed separately)
+module attachable_clip() {
+    clip_length = 20;
+    clip_width = 8;
+    clip_height = 12;
+    mount_hole_dia = 3.2;
+    
+    difference() {
+        union() {
+            // Base plate with mounting hole
+            cube([clip_length, clip_width, 3]);
+            // Vertical clip part
+            translate([clip_length/2 - 2, 0, 3])
+                cube([4, clip_width, clip_height - 3]);
+            // Hook at top
+            translate([clip_length/2 - 3, 0, clip_height - 2])
+                cube([6, clip_width, 2]);
+        }
+        // Mounting hole
+        translate([clip_length/4, clip_width/2, -0.1])
+            cylinder(h=3.2, d=mount_hole_dia, $fn=24);
+        translate([3*clip_length/4, clip_width/2, -0.1])
+            cylinder(h=3.2, d=mount_hole_dia, $fn=24);
+    }
+}
+
+/* ============================== */
+/*      BOTTOM CASE (Main Tray)   */
+/* ============================== */
+
+module case_bottom() {
+    // Bottom case holds the motherboard with standoffs
+    // Screws insert from TOP through board into these standoffs
+    
+    difference() {
+        union() {
+            // Main tray with walls
             difference() {
-                // Outer shell with rounded corners
+                // Outer shell
                 rounded_rect(case_length, case_width, case_height, 5);
                 
-                // Inner cavity
+                // Inner cavity (leave floor)
                 translate([wall_thickness, wall_thickness, wall_thickness])
                     rounded_rect(case_length - 2*wall_thickness, 
                                 case_width - 2*wall_thickness, 
                                 case_height, 3);
             }
             
-            // Screw standoffs from schematic positions
+            // Screw standoffs from schematic positions (ON BOTTOM CASE)
             for (hole = screw_holes) {
                 translate([board_offset_x + hole[0], 
                           board_offset_y + hole[1], 
@@ -290,29 +364,7 @@ module case_top() {
                 }
             }
             
-            // Corner snap-fit attachment structures
-            corner_inset = 10;
-            clip_width = 15;
-            clip_height = 8;
-            
-            // Front-left corner
-            translate([corner_inset, corner_inset, wall_thickness])
-                snap_clip(clip_width, 6, clip_height);
-            
-            // Front-right corner
-            translate([case_length - corner_inset - clip_width, corner_inset, wall_thickness])
-                snap_clip(clip_width, 6, clip_height);
-            
-            // Rear-left corner
-            translate([corner_inset, case_width - corner_inset - 6, wall_thickness])
-                snap_clip(clip_width, 6, clip_height);
-            
-            // Rear-right corner
-            translate([case_length - corner_inset - clip_width, case_width - corner_inset - 6, wall_thickness])
-                snap_clip(clip_width, 6, clip_height);
-                
             // SATA extension area screw standoffs
-            // Standard 2.5" SATA drive mounting holes
             sata_area_start_x = board_offset_x + board_length + sata_area_offset_x;
             sata_area_start_y = board_offset_y + sata_hdd_y - sata_hdd_center_offset;
             
@@ -321,7 +373,7 @@ module case_top() {
                           sata_area_start_y + pos[1], 
                           wall_thickness]) {
                     screw_standoff(
-                        height = standoff_height + sata_standoff_extra_height,  // Slightly taller for drive
+                        height = standoff_height + sata_standoff_extra_height,
                         outer_dia = 7,
                         hole_dia = sata_screw_hole_diameter
                     );
@@ -329,190 +381,168 @@ module case_top() {
             }
         }
         
-        // Port cutouts on LEFT side (Y = 0 face)
+        // Port cutouts on LEFT side (X = 0 face) - ports face outward
         // USB 3.0 #1
         translate([-0.5, board_offset_y + usb3_1_y - usb_width/2, wall_thickness + standoff_height])
-            port_cutout(usb_width, usb_height);
+            port_cutout(usb_width, usb_height, wall_thickness + 1);
             
         // USB 3.0 #2
         translate([-0.5, board_offset_y + usb3_2_y - usb_width/2, wall_thickness + standoff_height])
-            port_cutout(usb_width, usb_height);
+            port_cutout(usb_width, usb_height, wall_thickness + 1);
         
         // HDMI
         translate([-0.5, board_offset_y + hdmi_y - hdmi_width/2, wall_thickness + standoff_height])
-            port_cutout(hdmi_width, hdmi_height);
+            port_cutout(hdmi_width, hdmi_height, wall_thickness + 1);
         
         // Ethernet RJ45
         translate([-0.5, board_offset_y + lan_y - lan_width/2, wall_thickness + standoff_height])
-            port_cutout(lan_width, lan_height);
+            port_cutout(lan_width, lan_height, wall_thickness + 1);
         
         // VGA
         translate([-0.5, board_offset_y + vga_y - vga_width/2, wall_thickness + standoff_height])
-            port_cutout(vga_width, vga_height);
+            port_cutout(vga_width, vga_height, wall_thickness + 1);
         
-        // Port cutouts on RIGHT side
-        // USB 2.0
-        translate([case_length - wall_thickness - 0.5, board_offset_y + usb2_y - usb2_width/2, wall_thickness + standoff_height])
-            port_cutout(usb2_width, usb2_height);
+        // Heatsink cutout (on left side, after VGA port)
+        translate([-0.5, board_offset_y + heatsink_cutout_start_y, wall_thickness])
+            cube([wall_thickness + 1, heatsink_cutout_length, heatsink_cutout_height + standoff_height]);
         
-        // SATA HDD opening (large cutout for cable/connector)
+        // Port cutouts on FRONT edge (Y = 0 face)
+        // SD Card slot
+        translate([board_offset_x + sd_x - sd_width/2, -0.5, wall_thickness + standoff_height])
+            cube([sd_width, wall_thickness + 1, sd_height + 1]);
+        
+        // USB 2.0 (next to SD card)
+        translate([board_offset_x + usb2_x - usb2_width/2, -0.5, wall_thickness + standoff_height])
+            cube([usb2_width, wall_thickness + 1, usb2_height + 1]);
+        
+        // Port cutouts on RIGHT side (high X face) - SATA connectors
+        // SATA HDD opening
         translate([case_length - wall_thickness - 0.5, 
                   board_offset_y + sata_hdd_y - sata_connector_cutout_half_width, 
-                  wall_thickness + standoff_height - sata_area_offset_x])
+                  wall_thickness])
             cube([wall_thickness + 1, sata_connector_cutout_width, sata_connector_cutout_height]);
         
         // SATA ODD opening
         translate([case_length - wall_thickness - 0.5, 
                   board_offset_y + sata_odd_y - sata_connector_cutout_half_width, 
-                  wall_thickness + standoff_height - sata_area_offset_x])
+                  wall_thickness])
             cube([wall_thickness + 1, sata_connector_cutout_width, sata_connector_cutout_height]);
         
-        // Power connector (at fan cutout start on longer side as specified)
-        // Positioned on the right side where fan area starts
-        translate([case_length - wall_thickness - 0.5, case_width - board_offset_y - power_width - 10, wall_thickness + standoff_height])
-            port_cutout(power_width, power_height);
+        // Power connector on BACK edge (Y = case_width face)
+        // Positioned at ~13cm from SATA side = at power_connector_x from left
+        translate([board_offset_x + power_connector_x - power_width/2, 
+                  case_width - wall_thickness - 0.5, 
+                  wall_thickness + standoff_height])
+            cube([power_width, wall_thickness + 1, power_height + 1]);
         
-        // SD Card slot (on bottom edge)
-        translate([board_offset_x + sd_x - sd_width/2, -0.5, wall_thickness + standoff_height])
-            rotate([0, 0, 90])
-                port_cutout(sd_width, sd_height);
+        // Foot mounting holes (in floor of case)
+        foot_positions = [
+            [25, 25],
+            [case_length - 25, 25],
+            [25, case_width - 25],
+            [case_length - 25, case_width - 25],
+            [case_length/2, 25],
+            [case_length/2, case_width - 25],
+        ];
+        
+        for (pos = foot_positions) {
+            translate([pos[0], pos[1], -0.1])
+                cylinder(h=wall_thickness + 0.2, d=3.2, $fn=24);
+        }
+        
+        // Clip mounting holes (on walls)
+        // Front wall clips
+        translate([case_length/3, wall_thickness/2, case_height - 8])
+            rotate([90, 0, 0])
+                cylinder(h=wall_thickness + 1, d=3.2, center=true, $fn=24);
+        translate([2*case_length/3, wall_thickness/2, case_height - 8])
+            rotate([90, 0, 0])
+                cylinder(h=wall_thickness + 1, d=3.2, center=true, $fn=24);
+        
+        // Back wall clips
+        translate([case_length/3, case_width - wall_thickness/2, case_height - 8])
+            rotate([90, 0, 0])
+                cylinder(h=wall_thickness + 1, d=3.2, center=true, $fn=24);
+        translate([2*case_length/3, case_width - wall_thickness/2, case_height - 8])
+            rotate([90, 0, 0])
+                cylinder(h=wall_thickness + 1, d=3.2, center=true, $fn=24);
     }
 }
 
 /* ============================== */
-/*        BOTTOM CASE             */
+/*      TOP CASE (Cover/Lid)      */
 /* ============================== */
 
-module case_bottom() {
-    bottom_height = feet_height + wall_thickness;
-    grille_thickness = wall_thickness;
+module case_top() {
+    // Top case is a cover with ventilation grilles
+    // Fan pulls air from this side, so grilles are here
+    
+    cover_height = wall_thickness + 5;  // Just a lid, not deep
     
     difference() {
         union() {
-            // Outer rim that slots into top case
+            // Lid with slight rim to fit over bottom case walls
             difference() {
-                rounded_rect(case_length - wall_thickness*2 - board_clearance*2, 
-                            case_width - wall_thickness*2 - board_clearance*2, 
-                            bottom_height, 3);
+                rounded_rect(case_length + 2, case_width + 2, cover_height, 5);
                 
-                // Inner cutout for grille area
-                translate([grille_margin, grille_margin, wall_thickness])
-                    rounded_rect(case_length - wall_thickness*2 - board_clearance*2 - grille_margin*2, 
-                                case_width - wall_thickness*2 - board_clearance*2 - grille_margin*2, 
-                                bottom_height, 2);
+                // Recess to fit over bottom case
+                translate([1, 1, wall_thickness])
+                    rounded_rect(case_length, case_width, cover_height, 4);
             }
-            
-            // Ventilation grille
-            translate([grille_margin, grille_margin, 0])
-                ventilation_grille(
-                    case_length - wall_thickness*2 - board_clearance*2 - grille_margin*2,
-                    case_width - wall_thickness*2 - board_clearance*2 - grille_margin*2,
-                    grille_bar_width,
-                    grille_gap_width,
-                    wall_thickness
-                );
-            
-            // Cross-bars for structural support (perpendicular to main grille)
-            num_cross_bars = 5;
-            cross_bar_width = grille_bar_width * 1.5;
-            grille_length = case_length - wall_thickness*2 - board_clearance*2 - grille_margin*2;
-            grille_width_area = case_width - wall_thickness*2 - board_clearance*2 - grille_margin*2;
-            
-            for (i = [1:num_cross_bars]) {
-                x_pos = grille_margin + (grille_length / (num_cross_bars + 1)) * i - cross_bar_width/2;
-                translate([x_pos, grille_margin, 0])
-                    cube([cross_bar_width, grille_width_area, wall_thickness]);
-            }
-            
-            // Feet at corners
-            foot_inset = 15;
-            foot_diameter = 12;
-            
-            // Front-left foot
-            translate([foot_inset, foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            // Front-right foot
-            translate([case_length - wall_thickness*2 - board_clearance*2 - foot_inset, foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            // Rear-left foot
-            translate([foot_inset, case_width - wall_thickness*2 - board_clearance*2 - foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            // Rear-right foot
-            translate([case_length - wall_thickness*2 - board_clearance*2 - foot_inset, 
-                      case_width - wall_thickness*2 - board_clearance*2 - foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            // Additional center feet for support
-            translate([(case_length - wall_thickness*2 - board_clearance*2)/2, foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            translate([(case_length - wall_thickness*2 - board_clearance*2)/2, 
-                      case_width - wall_thickness*2 - board_clearance*2 - foot_inset, 0])
-                cylinder(h=feet_height + wall_thickness, d=foot_diameter, $fn=32);
-            
-            // Snap-fit receivers (slots for clips from top case)
-            corner_inset = 10 - wall_thickness - board_clearance;
-            slot_width = 16;
-            slot_depth = 7;
-            slot_height = 10;
-            
-            // Create raised edges for snap-fit
-            translate([corner_inset, corner_inset, wall_thickness])
-                difference() {
-                    cube([slot_width + 4, slot_depth + 4, slot_height]);
-                    translate([2, 2, -0.1])
-                        cube([slot_width, slot_depth, slot_height + 0.2]);
-                }
-            
-            translate([case_length - wall_thickness*2 - board_clearance*2 - corner_inset - slot_width - 4, 
-                      corner_inset, wall_thickness])
-                difference() {
-                    cube([slot_width + 4, slot_depth + 4, slot_height]);
-                    translate([2, 2, -0.1])
-                        cube([slot_width, slot_depth, slot_height + 0.2]);
-                }
-            
-            translate([corner_inset, 
-                      case_width - wall_thickness*2 - board_clearance*2 - corner_inset - slot_depth - 4, 
-                      wall_thickness])
-                difference() {
-                    cube([slot_width + 4, slot_depth + 4, slot_height]);
-                    translate([2, 2, -0.1])
-                        cube([slot_width, slot_depth, slot_height + 0.2]);
-                }
-            
-            translate([case_length - wall_thickness*2 - board_clearance*2 - corner_inset - slot_width - 4, 
-                      case_width - wall_thickness*2 - board_clearance*2 - corner_inset - slot_depth - 4, 
-                      wall_thickness])
-                difference() {
-                    cube([slot_width + 4, slot_depth + 4, slot_height]);
-                    translate([2, 2, -0.1])
-                        cube([slot_width, slot_depth, slot_height + 0.2]);
-                }
         }
         
-        // Rubber foot indents at the feet locations
-        foot_inset = 15;
-        rubber_foot_dia = 8;
-        rubber_foot_depth = 2;
+        // Fan area grille (after VGA port area)
+        translate([board_offset_x + fan_grille_start_x + 1, 
+                  board_offset_y + fan_grille_start_y + 1, 
+                  -0.1]) {
+            ventilation_grille_holes(fan_grille_length, fan_grille_width, 
+                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
+        }
         
-        translate([foot_inset, foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
-        translate([case_length - wall_thickness*2 - board_clearance*2 - foot_inset, foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
-        translate([foot_inset, case_width - wall_thickness*2 - board_clearance*2 - foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
-        translate([case_length - wall_thickness*2 - board_clearance*2 - foot_inset, 
-                  case_width - wall_thickness*2 - board_clearance*2 - foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
-        translate([(case_length - wall_thickness*2 - board_clearance*2)/2, foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
-        translate([(case_length - wall_thickness*2 - board_clearance*2)/2, 
-                  case_width - wall_thickness*2 - board_clearance*2 - foot_inset, -0.1])
-            cylinder(h=rubber_foot_depth + 0.1, d=rubber_foot_dia, $fn=24);
+        // CPU area grille (center of board)
+        translate([board_offset_x + cpu_grille_start_x + 1, 
+                  board_offset_y + cpu_grille_start_y + 1, 
+                  -0.1]) {
+            ventilation_grille_holes(cpu_grille_length, cpu_grille_width, 
+                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
+        }
+        
+        // Clip receiver slots on rim
+        // Front edge
+        translate([case_length/3 - 3, -0.1, wall_thickness])
+            cube([6, 3, cover_height]);
+        translate([2*case_length/3 - 3, -0.1, wall_thickness])
+            cube([6, 3, cover_height]);
+        
+        // Back edge
+        translate([case_length/3 - 3, case_width - 1, wall_thickness])
+            cube([6, 3, cover_height]);
+        translate([2*case_length/3 - 3, case_width - 1, wall_thickness])
+            cube([6, 3, cover_height]);
+    }
+}
+
+/* ============================== */
+/*      SEPARATE FEET             */
+/* ============================== */
+
+module feet_set() {
+    // Render 6 feet for printing
+    for (i = [0:5]) {
+        translate([i * 22, 0, 0])
+            attachable_foot();
+    }
+}
+
+/* ============================== */
+/*      SEPARATE CLIPS            */
+/* ============================== */
+
+module clips_set() {
+    // Render 4 clips for printing
+    for (i = [0:3]) {
+        translate([i * 25, 0, 0])
+            attachable_clip();
     }
 }
 
@@ -520,20 +550,15 @@ module case_bottom() {
 /*        PREVIEW/ASSEMBLY        */
 /* ============================== */
 
-// Preview positioning offset
-preview_bottom_offset = 5;  // Gap between top and bottom case in preview
-
 module assembly_preview() {
-    // Top case
-    color("DarkSlateGray", 0.7)
-        case_top();
+    // Bottom case (main tray)
+    color("DarkSlateGray", 0.8)
+        case_bottom();
     
-    // Bottom case (positioned to show how it slots in)
-    color("SlateGray", 0.7)
-        translate([wall_thickness + board_clearance, 
-                  wall_thickness + board_clearance, 
-                  -feet_height - wall_thickness - preview_bottom_offset])
-            case_bottom();
+    // Top case (cover) - positioned above
+    color("SlateGray", 0.6)
+        translate([-1, -1, case_height + 10])
+            case_top();
     
     // Board representation (for reference)
     color("DarkGreen", 0.5)
@@ -542,10 +567,26 @@ module assembly_preview() {
     
     // 2.5" SATA drive representation
     color("Silver", 0.5)
-        translate([board_offset_x + board_length + sata_area_offset_x + 5, 
-                  board_offset_y + schem_to_board_y(2114.170) - sata_hdd_center_offset, 
+        translate([board_offset_x + board_length + sata_area_offset_x + 10, 
+                  board_offset_y + sata_hdd_y - sata_hdd_center_offset, 
                   wall_thickness + standoff_height + sata_standoff_extra_height])
             cube([sata_drive_length, sata_drive_width, sata_drive_height]);
+    
+    // Show feet positions
+    foot_positions = [
+        [25, 25],
+        [case_length - 25, 25],
+        [25, case_width - 25],
+        [case_length - 25, case_width - 25],
+        [case_length/2, 25],
+        [case_length/2, case_width - 25],
+    ];
+    
+    color("Black", 0.8)
+        for (pos = foot_positions) {
+            translate([pos[0], pos[1], -feet_height])
+                attachable_foot();
+        }
 }
 
 /* ============================== */
@@ -556,14 +597,24 @@ if (render_part == "top") {
     case_top();
 } else if (render_part == "bottom") {
     case_bottom();
+} else if (render_part == "feet") {
+    feet_set();
+} else if (render_part == "clips") {
+    clips_set();
 } else if (render_part == "preview") {
     assembly_preview();
 } else {
-    // Render all parts side by side for printing
-    case_top();
+    // Render all parts laid out for printing
+    case_bottom();
     
     translate([0, case_width + 20, 0])
-        case_bottom();
+        case_top();
+    
+    translate([0, 2*case_width + 40, 0])
+        feet_set();
+    
+    translate([150, 2*case_width + 40, 0])
+        clips_set();
 }
 
 // Information echo
@@ -574,4 +625,11 @@ echo(str("Case Height: ", case_height, " mm"));
 echo(str("Board Area: ", board_length, " x ", board_width, " mm"));
 echo(str("Cable Clearance: ", cable_clearance, " mm on each side"));
 echo(str("Number of mounting holes: ", len(screw_holes)));
+echo("===========================");
+echo("ORIENTATION NOTES:");
+echo("- Standoffs are on BOTTOM case (screws from top/keyboard side)");
+echo("- Fan grille on TOP cover (fan pulls air from keyboard side)");
+echo("- Heatsink cutout on LEFT side after VGA port");
+echo("- Power connector on BACK edge, ~13cm from SATA side");
+echo("- Feet and clips are separate printable parts");
 echo("===========================");
