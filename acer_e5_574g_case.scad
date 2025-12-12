@@ -1,121 +1,106 @@
 // Acer E5-574G-54XQ Laptop Motherboard Case
 // Generated from QUANTA ZRT DA0ZRTMB6D0 schematic
 // 
-// ORIENTATION: The schematic shows the TOP view (keyboard side facing up).
-// The board is MIRRORED so that:
-// - RAM and components face UP (visible from top)
-// - Fan faces UP into the grille area for proper airflow
-// - Screws insert from TOP (schematic view) into BOTTOM case standoffs
+// ASSEMBLY ORDER (upside-down assembly, then flip):
+// 1. Attach motherboard to TOP part (which has standoffs and grilles)
+// 2. Attach edge pieces to TOP part
+// 3. Place BOTTOM part on top (which has power button cutout and feet mounting)
+// 4. Attach feet to BOTTOM part
+// 5. FLIP the entire assembly upside down
 //
-// This OpenSCAD file creates a 3D-printable case with:
-// - Base plate with screw standoffs (board mounts here)
-// - Separate edge/wall pieces (printed individually for printability)
-// - Top cover with ventilation grilles for fan and CPU cooling
-// - Port cutouts for USB, Ethernet, SD Card, Power, SATA
-// - SATA extension area (130mm) for 2.5" SATA drive
-// - Power button cutout for Cherry MX style keyswitch
-// - Separate attachable feet for airflow
+// FINAL ORIENTATION (after flip):
+// - Motherboard is upside down (components face down toward grilles)
+// - Fan pulls air from BOTTOM through grilles
+// - Power button on TOP (accessible)
+// - Feet on BOTTOM for airflow clearance
+//
+// SATA EXTENSION:
+// - 130mm extension for 2.5" drives
+// - Standard 2.5" screw positions for both HDD/SSD and optical caddy adapter
+// - Both drives need screw mounting holes
 
 /* [Render Options] */
-// What to render
-render_part = "all"; // ["base", "top", "edge_front", "edge_back", "edge_left", "edge_right", "feet", "all", "preview"]
+render_part = "all"; // ["top_with_standoffs", "bottom_with_button", "edge_front", "edge_back", "edge_left", "edge_right", "feet", "all", "preview"]
 
 /* [Board Dimensions] */
-// Board dimensions (converted from mils to mm)
-board_length = 231;      // ~9100 mils = ~231mm (X direction)
-board_width = 195;       // ~7660 mils = ~195mm (Y direction)
+board_length = 231;      // ~231mm (X direction)
+board_width = 195;       // ~195mm (Y direction)
 board_thickness = 1.6;   // Standard PCB thickness
 
 /* [Case Parameters] */
-// Wall thickness for 3D printing strength
 wall_thickness = 3.0;
-
-// Height of elevated sides
 side_height = 15;
-
-// Edge piece minimum thickness (for printability)
 edge_min_thickness = 4.0;
-
-// Clearance around board edges
 board_clearance = 0.5;
-
-// Cable clearance on sides (15mm as specified)
 cable_clearance = 15;
-
-// SATA extension length (130mm as specified)
-sata_extension = 130;
-
-// Attachable feet height for airflow
+sata_extension = 130;    // Extension for SATA drives
 feet_height = 8;
 
-// Ventilation grille parameters
-grille_bar_width = 2.5;      // Width of each grille bar
-grille_gap_width = 4;        // Gap between bars for airflow
+/* [Ventilation Grille] */
+grille_bar_width = 2.5;
+grille_gap_width = 4;
 
-/* [Fan and Heatsink Area] */
-// Fan grille area (fan faces UP in this orientation)
-fan_grille_start_x = 50;     // Start of fan grille area X (mm from board origin)
-fan_grille_start_y = 120;    // Start of fan grille area Y (mm from board origin)
-fan_grille_length = 80;      // Length of fan grille in X
-fan_grille_width = 60;       // Width of fan grille in Y
+/* [Fan Area] */
+// Fan grille area - this is where the blower fan pulls air
+fan_grille_start_x = 50;
+fan_grille_start_y = 120;
+fan_grille_length = 80;
+fan_grille_width = 60;
 
-// Heatsink cutout dimensions (on the side, after VGA port)
-heatsink_cutout_start_y = 115;  // mm from board origin (after VGA port)
-heatsink_cutout_length = 60;    // Length along the board edge
-heatsink_cutout_height = 15;    // Height of cutout
+// Fan screw positions (from schematic, 2 mounting holes)
+// Note: These positions may need adjustment based on actual fan placement
+// Standard laptop fan mounting uses M2.5 screws
+fan_screw_1_x = 62;      // Position near fan grille area
+fan_screw_1_y = 135;
+fan_screw_2_x = 115;
+fan_screw_2_y = 155;
+fan_screw_dia = 2.5;     // M2.5 screws for fan
 
-// CPU area ventilation
-cpu_grille_start_x = 100;    // Start X position (mm from board origin)
-cpu_grille_start_y = 80;     // Start Y position
-cpu_grille_length = 80;      // Length of CPU grille in X
-cpu_grille_width = 70;       // Width of CPU grille in Y
+/* [Heatsink Cutout] */
+heatsink_cutout_start_y = 115;
+heatsink_cutout_length = 60;
+heatsink_cutout_height = 15;
 
-/* [Power Button] */
-// Cherry MX keyswitch cutout (14mm x 14mm standard)
-// Positioned on top cover near RAM area
-cherry_mx_size = 14.0;       // Standard Cherry MX plate cutout
-cherry_mx_tolerance = 0.1;   // Snug fit tolerance
-power_button_x = 180;        // X position on board (near RAM area)
-power_button_y = 40;         // Y position on board
+/* [CPU Ventilation] */
+cpu_grille_start_x = 100;
+cpu_grille_start_y = 80;
+cpu_grille_length = 80;
+cpu_grille_width = 70;
+
+/* [Power Button - on BOTTOM part (top after flip)] */
+cherry_mx_size = 14.0;
+cherry_mx_tolerance = 0.1;
+power_button_x = 180;    // Near RAM area
+power_button_y = 40;
 
 /* [Screw Parameters] */
 screw_hole_diameter = 3.2;
 standoff_outer_diameter = 8;
-standoff_height = 5;         // Height above base for board to sit on
-
-// SATA screw parameters
+standoff_height = 5;
 sata_screw_hole_diameter = 3.2;
 
 /* [Calculated Dimensions] */
-// Total case dimensions
 case_length = board_length + 2*cable_clearance + sata_extension;
 case_width = board_width + 2*cable_clearance;
 case_height = side_height + board_thickness + standoff_height;
-
-// Board offset from case origin
 board_offset_x = cable_clearance;
 board_offset_y = cable_clearance;
 
-/* [Edge Connection System] */
-// Dovetail-style connection for edges to base
-dovetail_width = 10;
-dovetail_height = 5;
-dovetail_depth = 3;
-dovetail_spacing = 40;  // Distance between dovetails
+/* [Motherboard Support] */
+// Extra support ribs to keep motherboard steady
+support_rib_width = 3;
+support_rib_height = standoff_height - 1;  // Just below board level
 
 /* [Screw Standoff Positions from Schematic] */
 function mils_to_mm(x) = x * 0.0254;
 
-// Schematic board origin offset
-schematic_origin_x = 1200;  // mils
-schematic_origin_y = 440;   // mils
+schematic_origin_x = 1200;
+schematic_origin_y = 440;
 
-// Convert schematic coordinates to board-relative mm
-// MIRRORED in Y direction so fan faces up
 function schem_to_board_x(x) = mils_to_mm(x - schematic_origin_x);
 function schem_to_board_y(y) = board_width - mils_to_mm(y - schematic_origin_y);
 
-// Screw standoff positions (MIRRORED for correct orientation)
+// Motherboard screw standoff positions
 screw_holes = [
     [schem_to_board_x(4042.130), schem_to_board_y(440.940), "M3", 3.4],
     [schem_to_board_x(1358.270), schem_to_board_y(440.950), "M3", 3.4],
@@ -142,8 +127,7 @@ screw_holes = [
     [schem_to_board_x(8454.740), schem_to_board_y(1665.360), "M2.5", 2.5],
 ];
 
-/* [Port Positions - MIRRORED] */
-// Ports are mirrored in Y direction
+/* [Port Positions] */
 usb3_1_y = schem_to_board_y(2118.110);
 usb3_2_y = schem_to_board_y(1409.440);
 usb_width = 15;
@@ -169,34 +153,36 @@ usb2_x = sd_x + sd_width + 25;
 usb2_width = 15;
 usb2_height = 7;
 
-sata_hdd_y = schem_to_board_y(2114.170);
-sata_odd_y = schem_to_board_y(4315.300);
-
-// Power connector - ~13cm from SATA side, on back edge
-power_connector_x = 130;
+power_connector_x = 130;  // ~13cm from SATA side
 power_width = 15;
 power_height = 8;
 
-/* [SATA Drive Mounting] */
-sata_drive_width = 69.85;
-sata_drive_length = 100.2;
-sata_drive_height = 9.5;
-sata_area_offset_x = 5;
-sata_hdd_center_offset = 35;
-sata_standoff_extra_height = 3;
-
-sata_drive_screw_positions = [
-    [14, 3],
-    [14, 69.85-3],
-    [90.6, 3],
-    [90.6, 69.85-3]
+/* [SATA Drive Mounting - Standard 2.5" positions] */
+// Standard 2.5" HDD/SSD screw positions (bottom mounting)
+// Holes are at 14mm and 90.6mm from front, 3mm from each side edge
+sata_25_screw_positions = [
+    [14, 3],           // Front left
+    [14, 69.85-3],     // Front right
+    [90.6, 3],         // Rear left
+    [90.6, 69.85-3]    // Rear right
 ];
+
+// SATA area positioning constants
+sata_area_x_offset = 5;  // Gap from board edge
+sata_drive_spacing = 80; // Vertical spacing between drives
+
+// SATA area for first drive (HDD position)
+sata_drive1_start_x = board_length + cable_clearance + sata_area_x_offset;
+sata_drive1_start_y = cable_clearance + 20;
+
+// SATA area for optical caddy adapter (below first drive)
+sata_drive2_start_x = sata_drive1_start_x;
+sata_drive2_start_y = sata_drive1_start_y + sata_drive_spacing;
 
 /* ============================== */
 /*        MODULES                 */
 /* ============================== */
 
-// Screw standoff
 module screw_standoff(height, outer_dia, hole_dia) {
     difference() {
         cylinder(h=height, d=outer_dia, $fn=32);
@@ -205,7 +191,6 @@ module screw_standoff(height, outer_dia, hole_dia) {
     }
 }
 
-// Ventilation grille holes
 module ventilation_grille_holes(length, width, bar_w, gap_w, thickness) {
     num_bars_y = floor(width / (bar_w + gap_w));
     for (i = [0:num_bars_y-1]) {
@@ -217,12 +202,6 @@ module ventilation_grille_holes(length, width, bar_w, gap_w, thickness) {
     }
 }
 
-// Port cutout
-module port_cutout(width, height, depth) {
-    cube([depth, width + 1, height + 1]);
-}
-
-// Rounded rectangle
 module rounded_rect(length, width, height, radius) {
     hull() {
         translate([radius, radius, 0])
@@ -236,34 +215,12 @@ module rounded_rect(length, width, height, radius) {
     }
 }
 
-// Dovetail female slot (cut into base)
-module dovetail_slot(width, height, depth) {
-    hull() {
-        translate([0, 0, 0])
-            cube([width, depth, 0.1]);
-        translate([width*0.1, 0, height])
-            cube([width*0.8, depth, 0.1]);
-    }
-}
-
-// Dovetail male tab (on edge piece)
-module dovetail_tab(width, height, depth) {
-    hull() {
-        translate([0, 0, 0])
-            cube([width-0.3, depth-0.3, 0.1]);
-        translate([width*0.1, 0, height-0.1])
-            cube([width*0.8-0.3, depth-0.3, 0.1]);
-    }
-}
-
-// Cherry MX keyswitch cutout
 module cherry_mx_cutout(size, tolerance) {
     cutout_size = size + tolerance;
     translate([-cutout_size/2, -cutout_size/2, 0])
         cube([cutout_size, cutout_size, 10]);
 }
 
-// Attachable foot
 module attachable_foot() {
     foot_base_dia = 15;
     foot_top_dia = 12;
@@ -282,86 +239,170 @@ module attachable_foot() {
     }
 }
 
+module support_rib(length) {
+    cube([length, support_rib_width, support_rib_height]);
+}
+
 /* ============================== */
-/*      BASE PLATE                */
+/*   TOP PART (with standoffs)    */
+/*   Motherboard mounts here      */
+/*   Has grilles for airflow      */
 /* ============================== */
 
-module case_base() {
-    // Flat base plate with standoffs and dovetail slots for edges
-    
+module top_with_standoffs() {
     difference() {
         union() {
-            // Main base plate
+            // Main plate with grilles
             rounded_rect(case_length, case_width, wall_thickness, 5);
             
-            // Screw standoffs for motherboard
-            for (hole = screw_holes) {
-                translate([board_offset_x + hole[0], 
-                          board_offset_y + hole[1], 
-                          wall_thickness]) {
-                    screw_standoff(
-                        height = standoff_height,
-                        outer_dia = standoff_outer_diameter,
-                        hole_dia = hole[3]
-                    );
-                }
-            }
-            
-            // SATA drive standoffs
-            sata_area_start_x = board_offset_x + board_length + sata_area_offset_x;
-            sata_area_start_y = board_offset_y + sata_hdd_y - sata_hdd_center_offset;
-            
-            for (pos = sata_drive_screw_positions) {
-                translate([sata_area_start_x + pos[0], 
-                          sata_area_start_y + pos[1], 
-                          wall_thickness]) {
-                    screw_standoff(
-                        height = standoff_height + sata_standoff_extra_height,
-                        outer_dia = 7,
-                        hole_dia = sata_screw_hole_diameter
-                    );
-                }
-            }
-            
-            // Raised lip around edge for edge pieces to slot into
+            // Raised lip for edge connection
             difference() {
-                translate([0, 0, 0])
-                    rounded_rect(case_length, case_width, wall_thickness + 3, 5);
+                rounded_rect(case_length, case_width, wall_thickness + 3, 5);
                 translate([edge_min_thickness, edge_min_thickness, wall_thickness])
                     rounded_rect(case_length - 2*edge_min_thickness, 
                                 case_width - 2*edge_min_thickness, 
                                 5, 3);
             }
+            
+            // Motherboard screw standoffs
+            for (hole = screw_holes) {
+                translate([board_offset_x + hole[0], 
+                          board_offset_y + hole[1], 
+                          wall_thickness]) {
+                    screw_standoff(standoff_height, standoff_outer_diameter, hole[3]);
+                }
+            }
+            
+            // Fan screw standoffs (2 positions)
+            translate([board_offset_x + fan_screw_1_x, 
+                      board_offset_y + fan_screw_1_y, 
+                      wall_thickness]) {
+                screw_standoff(standoff_height, 6, fan_screw_dia);
+            }
+            translate([board_offset_x + fan_screw_2_x, 
+                      board_offset_y + fan_screw_2_y, 
+                      wall_thickness]) {
+                screw_standoff(standoff_height, 6, fan_screw_dia);
+            }
+            
+            // SATA drive 1 standoffs (2.5" mounting)
+            for (pos = sata_25_screw_positions) {
+                translate([sata_drive1_start_x + pos[0], 
+                          sata_drive1_start_y + pos[1], 
+                          wall_thickness]) {
+                    screw_standoff(standoff_height + 3, 7, sata_screw_hole_diameter);
+                }
+            }
+            
+            // SATA drive 2 (optical caddy) standoffs (2.5" mounting)
+            for (pos = sata_25_screw_positions) {
+                translate([sata_drive2_start_x + pos[0], 
+                          sata_drive2_start_y + pos[1], 
+                          wall_thickness]) {
+                    screw_standoff(standoff_height + 3, 7, sata_screw_hole_diameter);
+                }
+            }
+            
+            // Support ribs for motherboard stability
+            // Rib along X direction (front)
+            translate([board_offset_x + 20, board_offset_y + 10, wall_thickness])
+                support_rib(board_length - 40);
+            // Rib along X direction (back)
+            translate([board_offset_x + 20, board_offset_y + board_width - 15, wall_thickness])
+                support_rib(board_length - 40);
+            // Rib along Y direction (left side)
+            translate([board_offset_x + 10, board_offset_y + 20, wall_thickness])
+                rotate([0, 0, 90])
+                    support_rib(board_width - 40);
+            // Rib along Y direction (right side)
+            translate([board_offset_x + board_length - 10, board_offset_y + 20, wall_thickness])
+                rotate([0, 0, 90])
+                    support_rib(board_width - 40);
         }
         
-        // Foot mounting holes
-        foot_positions = [
-            [25, 25],
-            [case_length - 25, 25],
-            [25, case_width - 25],
-            [case_length - 25, case_width - 25],
-            [case_length/2, 25],
-            [case_length/2, case_width - 25],
-        ];
+        // Fan grille holes
+        translate([board_offset_x + fan_grille_start_x, 
+                  board_offset_y + fan_grille_start_y, 
+                  -0.1]) {
+            ventilation_grille_holes(fan_grille_length, fan_grille_width, 
+                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
+        }
         
-        for (pos = foot_positions) {
-            translate([pos[0], pos[1], -0.1])
-                cylinder(h=wall_thickness + 0.2, d=3.2, $fn=24);
+        // CPU grille holes
+        translate([board_offset_x + cpu_grille_start_x, 
+                  board_offset_y + cpu_grille_start_y, 
+                  -0.1]) {
+            ventilation_grille_holes(cpu_grille_length, cpu_grille_width, 
+                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
         }
     }
 }
 
 /* ============================== */
-/*      EDGE PIECES (SEPARATE)    */
+/*   BOTTOM PART (with button)    */
+/*   Has power button cutout      */
+/*   Feet mount here              */
 /* ============================== */
 
-// Front edge (Y = 0 side) - with SD card and USB2 cutouts
+module bottom_with_button() {
+    cover_height = wall_thickness + 3;
+    
+    difference() {
+        // Main cover plate
+        rounded_rect(case_length + 2, case_width + 2, cover_height, 5);
+        
+        // Recess to fit over edges
+        translate([1, 1, wall_thickness])
+            rounded_rect(case_length, case_width, cover_height, 4);
+        
+        // Cherry MX power button cutout (snug fit)
+        translate([board_offset_x + power_button_x + 1, 
+                  board_offset_y + power_button_y + 1, 
+                  -0.1]) {
+            cherry_mx_cutout(cherry_mx_size, cherry_mx_tolerance);
+        }
+        
+        // Foot mounting holes
+        foot_positions = [
+            [26, 26],
+            [case_length - 24, 26],
+            [26, case_width - 24],
+            [case_length - 24, case_width - 24],
+            [case_length/2 + 1, 26],
+            [case_length/2 + 1, case_width - 24],
+        ];
+        
+        for (pos = foot_positions) {
+            translate([pos[0], pos[1], -0.1])
+                cylinder(h=cover_height + 0.2, d=3.2, $fn=24);
+        }
+        
+        // Edge engagement slots
+        for (x = [case_length/4, case_length/2, 3*case_length/4]) {
+            translate([x - 5, -0.1, wall_thickness])
+                cube([10, 3, 4]);
+            translate([x - 5, case_width - 1, wall_thickness])
+                cube([10, 3, 4]);
+        }
+        for (y = [case_width/4, case_width/2, 3*case_width/4]) {
+            translate([-0.1, y - 5, wall_thickness])
+                cube([3, 10, 4]);
+            translate([case_length - 1, y - 5, wall_thickness])
+                cube([3, 10, 4]);
+        }
+    }
+}
+
+/* ============================== */
+/*      EDGE PIECES               */
+/* ============================== */
+
+// Front edge (Y = 0 side) - SD card and USB2
 module edge_front() {
     edge_length = case_length - 2*edge_min_thickness;
     edge_height = case_height - wall_thickness;
     
     difference() {
-        // Main edge piece
         cube([edge_length, edge_min_thickness, edge_height]);
         
         // SD Card cutout
@@ -374,7 +415,7 @@ module edge_front() {
     }
 }
 
-// Back edge (Y = max side) - with power connector cutout
+// Back edge (Y = max side) - Power connector
 module edge_back() {
     edge_length = case_length - 2*edge_min_thickness;
     edge_height = case_height - wall_thickness;
@@ -389,7 +430,7 @@ module edge_back() {
     }
 }
 
-// Left edge (X = 0 side) - with USB3, HDMI, LAN, VGA, heatsink cutouts
+// Left edge (X = 0 side) - All main ports
 module edge_left() {
     edge_length = case_width - 2*edge_min_thickness;
     edge_height = case_height - wall_thickness;
@@ -423,77 +464,12 @@ module edge_left() {
     }
 }
 
-// Right edge (X = max side) - SOLID (no SATA cutouts needed per user)
+// Right edge (X = max side) - Solid, no SATA cutouts
 module edge_right() {
     edge_length = case_width - 2*edge_min_thickness;
     edge_height = case_height - wall_thickness;
     
-    // Solid edge piece
     cube([edge_min_thickness, edge_length, edge_height]);
-}
-
-/* ============================== */
-/*      TOP COVER                 */
-/* ============================== */
-
-module case_top() {
-    cover_height = wall_thickness + 3;
-    
-    difference() {
-        union() {
-            // Main cover
-            rounded_rect(case_length + 2, case_width + 2, cover_height, 5);
-        }
-        
-        // Recess to fit over edges
-        translate([1, 1, wall_thickness])
-            rounded_rect(case_length, case_width, cover_height, 4);
-        
-        // Fan area grille
-        translate([board_offset_x + fan_grille_start_x + 1, 
-                  board_offset_y + fan_grille_start_y + 1, 
-                  -0.1]) {
-            ventilation_grille_holes(fan_grille_length, fan_grille_width, 
-                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
-        }
-        
-        // CPU area grille
-        translate([board_offset_x + cpu_grille_start_x + 1, 
-                  board_offset_y + cpu_grille_start_y + 1, 
-                  -0.1]) {
-            ventilation_grille_holes(cpu_grille_length, cpu_grille_width, 
-                                     grille_bar_width, grille_gap_width, wall_thickness + 0.2);
-        }
-        
-        // Cherry MX power button cutout (snug fit)
-        translate([board_offset_x + power_button_x + 1, 
-                  board_offset_y + power_button_y + 1, 
-                  -0.1]) {
-            cherry_mx_cutout(cherry_mx_size, cherry_mx_tolerance);
-        }
-        
-        // Lip engagement slots for snap-fit with edges
-        // Front edge slots
-        for (x = [case_length/4, case_length/2, 3*case_length/4]) {
-            translate([x - 5, -0.1, wall_thickness])
-                cube([10, 3, 4]);
-        }
-        // Back edge slots
-        for (x = [case_length/4, case_length/2, 3*case_length/4]) {
-            translate([x - 5, case_width - 1, wall_thickness])
-                cube([10, 3, 4]);
-        }
-        // Left edge slots
-        for (y = [case_width/4, case_width/2, 3*case_width/4]) {
-            translate([-0.1, y - 5, wall_thickness])
-                cube([3, 10, 4]);
-        }
-        // Right edge slots
-        for (y = [case_width/4, case_width/2, 3*case_width/4]) {
-            translate([case_length - 1, y - 5, wall_thickness])
-                cube([3, 10, 4]);
-        }
-    }
 }
 
 /* ============================== */
@@ -512,59 +488,55 @@ module feet_set() {
 /* ============================== */
 
 module assembly_preview() {
-    // Base plate
+    // TOP part (with standoffs) - motherboard mounts here
     color("DarkSlateGray", 0.8)
-        case_base();
+        top_with_standoffs();
     
-    // Edge pieces (positioned around base)
+    // Edge pieces
     color("SlateGray", 0.9) {
-        // Front edge
         translate([edge_min_thickness, 0, wall_thickness])
             edge_front();
-        
-        // Back edge
         translate([edge_min_thickness, case_width - edge_min_thickness, wall_thickness])
             edge_back();
-        
-        // Left edge
         translate([0, edge_min_thickness, wall_thickness])
             edge_left();
-        
-        // Right edge
         translate([case_length - edge_min_thickness, edge_min_thickness, wall_thickness])
             edge_right();
     }
     
-    // Top cover (positioned above)
+    // BOTTOM part (with power button) - positioned above
     color("LightGray", 0.6)
         translate([-1, -1, case_height + 5])
-            case_top();
+            bottom_with_button();
     
     // Board representation
     color("DarkGreen", 0.5)
         translate([board_offset_x, board_offset_y, wall_thickness + standoff_height])
             cube([board_length, board_width, board_thickness]);
     
-    // SATA drive representation
+    // SATA drive 1 representation
     color("Silver", 0.5)
-        translate([board_offset_x + board_length + sata_area_offset_x + 10, 
-                  board_offset_y + sata_hdd_y - sata_hdd_center_offset, 
-                  wall_thickness + standoff_height + sata_standoff_extra_height])
-            cube([sata_drive_length, sata_drive_width, sata_drive_height]);
+        translate([sata_drive1_start_x, sata_drive1_start_y, wall_thickness + standoff_height + 3])
+            cube([100, 69.85, 9.5]);
     
-    // Feet
+    // SATA drive 2 (optical caddy) representation
+    color("DarkGray", 0.5)
+        translate([sata_drive2_start_x, sata_drive2_start_y, wall_thickness + standoff_height + 3])
+            cube([100, 69.85, 9.5]);
+    
+    // Feet (on bottom part)
     foot_positions = [
-        [25, 25],
-        [case_length - 25, 25],
-        [25, case_width - 25],
-        [case_length - 25, case_width - 25],
-        [case_length/2, 25],
-        [case_length/2, case_width - 25],
+        [26, 26],
+        [case_length - 24, 26],
+        [26, case_width - 24],
+        [case_length - 24, case_width - 24],
+        [case_length/2 + 1, 26],
+        [case_length/2 + 1, case_width - 24],
     ];
     
     color("Black", 0.8)
         for (pos = foot_positions) {
-            translate([pos[0], pos[1], -feet_height])
+            translate([pos[0] - 1, pos[1] - 1, case_height + 8])
                 attachable_foot();
         }
 }
@@ -573,10 +545,10 @@ module assembly_preview() {
 /*      MAIN RENDER               */
 /* ============================== */
 
-if (render_part == "base") {
-    case_base();
-} else if (render_part == "top") {
-    case_top();
+if (render_part == "top_with_standoffs") {
+    top_with_standoffs();
+} else if (render_part == "bottom_with_button") {
+    bottom_with_button();
 } else if (render_part == "edge_front") {
     edge_front();
 } else if (render_part == "edge_back") {
@@ -590,11 +562,11 @@ if (render_part == "base") {
 } else if (render_part == "preview") {
     assembly_preview();
 } else {
-    // Render all parts laid out for printing
-    case_base();
+    // All parts for printing
+    top_with_standoffs();
     
     translate([0, case_width + 20, 0])
-        case_top();
+        bottom_with_button();
     
     translate([0, 2*case_width + 50, 0])
         edge_front();
@@ -614,31 +586,28 @@ if (render_part == "base") {
         feet_set();
 }
 
-// Information echo
-echo("===== Case Dimensions =====");
-echo(str("Case Length: ", case_length, " mm (including ", sata_extension, "mm SATA extension)"));
-echo(str("Case Width: ", case_width, " mm"));
-echo(str("Case Height: ", case_height, " mm"));
-echo(str("Edge Minimum Thickness: ", edge_min_thickness, " mm"));
-echo(str("Number of mounting holes: ", len(screw_holes)));
+// Information
+echo("===== Acer E5-574G Case =====");
+echo(str("Case: ", case_length, " x ", case_width, " x ", case_height, " mm"));
+echo(str("SATA extension: ", sata_extension, " mm"));
 echo("===========================");
-echo("PARTS TO PRINT:");
-echo("1. Base plate (render_part='base')");
-echo("2. Top cover (render_part='top')");
-echo("3. Front edge (render_part='edge_front')");
-echo("4. Back edge (render_part='edge_back')");
-echo("5. Left edge (render_part='edge_left')");
-echo("6. Right edge (render_part='edge_right')");
-echo("7. Feet x6 (render_part='feet')");
+echo("ASSEMBLY ORDER:");
+echo("1. Attach motherboard to TOP part (standoffs/grilles)");
+echo("2. Attach edge pieces to TOP part");
+echo("3. Place BOTTOM part on top (power button)");
+echo("4. Attach feet to BOTTOM part");
+echo("5. FLIP entire assembly upside down");
 echo("===========================");
-echo("ASSEMBLY:");
-echo("- Place edge pieces on base plate lip");
-echo("- Insert board and secure with screws from top");
-echo("- Snap top cover onto edges");
-echo("- Attach feet to bottom with M3 screws");
+echo("PARTS:");
+echo("- top_with_standoffs: Motherboard mounts here, has grilles");
+echo("- bottom_with_button: Power button cutout, feet mount here");
+echo("- edge_front: SD card, USB 2.0 cutouts");
+echo("- edge_back: Power connector cutout");
+echo("- edge_left: USB3, HDMI, LAN, VGA, heatsink cutouts");
+echo("- edge_right: Solid");
+echo("- feet: 6 pieces for airflow");
 echo("===========================");
-echo("ORIENTATION:");
-echo("- Board is MIRRORED so RAM/fan face UP");
-echo("- Fan grille on top cover for upward airflow");
-echo("- Power button uses Cherry MX keyswitch (snug fit)");
+echo("SATA DRIVES:");
+echo("- 2x 2.5\" mounting positions");
+echo("- Standard screw holes at 14mm and 90.6mm from front");
 echo("===========================");
