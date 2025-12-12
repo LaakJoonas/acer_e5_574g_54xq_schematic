@@ -7,81 +7,56 @@ This repository contains an OpenSCAD file for creating a 3D-printable case for t
 ## Orientation Notes
 
 **IMPORTANT**: The schematic shows the TOP view (keyboard side facing up).
-- Screws insert from the TOP (schematic view) into the bottom case standoffs
-- The fan pulls air from the TOP side, so ventilation grilles are on the top cover
-- The heatsink is located after the VGA port area and needs a cutout on the side
-- The power connector is on the opposite side from SATA, approximately 13cm from the SATA side
+- The board is **MIRRORED** so that RAM and components face UP (visible)
+- The fan faces UP into the grille area for proper airflow
+- Screws insert from the TOP through the board into standoffs on the base plate
+- The heatsink is located after the VGA port area with a cutout on the side
+- The power connector is on the back edge, approximately 13cm from the SATA side
 
-### Features
+## Parts Overview
 
-1. **Bottom Case (Main Tray)**
-   - Screw standoffs positioned according to the schematic (23 mounting holes)
-   - Board sits on standoffs, screws insert from top through board
-   - 15mm cable clearance on both sides of the board
-   - Port cutouts on appropriate edges
-   - Heatsink cutout on left side after VGA port
-   - Foot mounting holes in floor
+The case is designed as **modular separate parts** for better 3D printability:
 
-2. **Top Case (Cover/Lid)**
-   - Ventilation grille for fan area (blower-style fan pulls air from top)
-   - Ventilation grille for CPU cooling area
-   - Grille pattern with 2.5mm bars and 4mm gaps (3D-printable)
-   - Rim fits over bottom case walls
+### 1. Base Plate (`render_part = "base"`)
+- Flat plate with screw standoffs for motherboard (23 mounting holes)
+- Raised lip around edges for edge pieces to slot into
+- SATA drive mounting standoffs in extension area
+- Foot mounting holes in floor
 
-3. **Separate Attachable Feet**
-   - 6 feet for airflow (prevents fan choking)
-   - Attach to bottom case floor with screws
-   - 8mm height for adequate airflow
+### 2. Top Cover (`render_part = "top"`)
+- Ventilation grille for fan area (blower-style fan pulls air from top)
+- Ventilation grille for CPU cooling area
+- **Cherry MX power button cutout** (14mm x 14mm, snug fit for keyswitch)
+- Snap-fit slots to engage with edge pieces
 
-4. **Separate Attachable Clips**
-   - 4 clips for securing top to bottom case
-   - Printed separately to avoid overhang issues
-   - Attach to case walls with screws
+### 3. Separate Edge Pieces (4 pieces)
+Each edge is printed separately for better printability (minimum 4mm thickness):
 
-5. **Port Cutouts**
-   - USB 3.0 ports (left side)
-   - HDMI port (left side)
-   - Ethernet RJ45 (left side)
-   - VGA port (left side)
-   - Heatsink cutout (left side, after VGA)
-   - SD Card slot (front/bottom edge)
-   - USB 2.0 port (front edge, near SD card/RAM area)
-   - Power connector (back edge, ~13cm from SATA side)
-   - SATA HDD and ODD connector clearances (right side)
+- **Front Edge** (`render_part = "edge_front"`): SD card and USB 2.0 cutouts
+- **Back Edge** (`render_part = "edge_back"`): Power connector cutout
+- **Left Edge** (`render_part = "edge_left"`): USB 3.0, HDMI, Ethernet, VGA, heatsink cutouts
+- **Right Edge** (`render_part = "edge_right"`): Solid (SATA area, no cutouts needed)
 
-6. **SATA Extension Area**
-   - 130mm extension on the SATA connector side
-   - Screw standoffs for standard 2.5" SATA drive mounting
-   - Space for optical drive to SSD adapter caddy (5.25" to 2.5" SATA)
+### 4. Attachable Feet (`render_part = "feet"`)
+- 6 feet for airflow (prevents fan choking)
+- Attach to base plate with M3 screws
+- 8mm height for adequate airflow
 
-### Usage
-
-#### OpenSCAD Customizer
-
-The file includes Customizer parameters that can be adjusted:
-
-- **Render Options**: Select what to render (`top`, `bottom`, `feet`, `clips`, `all`, `preview`)
-- **Case Parameters**: Adjust wall thickness, side height, clearances
-- **Fan/Heatsink Parameters**: Adjust grille positions and sizes
-- **Screw Parameters**: Modify screw hole dimensions
-- **Grille Parameters**: Customize ventilation pattern
-
-#### Rendering Options
-
-To render specific parts, change the `render_part` variable:
+## Rendering Options
 
 ```scad
-render_part = "top";      // Render only top cover
-render_part = "bottom";   // Render only bottom tray
-render_part = "feet";     // Render attachable feet (6 pieces)
-render_part = "clips";    // Render attachable clips (4 pieces)
-render_part = "all";      // Render all parts laid out for printing
-render_part = "preview";  // Show assembly preview with board representation
+render_part = "base";        // Base plate with standoffs
+render_part = "top";         // Top cover with grilles and power button
+render_part = "edge_front";  // Front edge piece
+render_part = "edge_back";   // Back edge piece
+render_part = "edge_left";   // Left edge piece (ports)
+render_part = "edge_right";  // Right edge piece (solid)
+render_part = "feet";        // Attachable feet (6 pieces)
+render_part = "all";         // All parts laid out for printing
+render_part = "preview";     // Assembly preview
 ```
 
-### Dimensions
-
-Based on the schematic analysis:
+## Dimensions
 
 | Parameter | Value |
 |-----------|-------|
@@ -90,51 +65,63 @@ Based on the schematic analysis:
 | Case Length (with SATA extension) | 391mm |
 | Case Width | 225mm |
 | Case Height | ~22mm |
+| Edge Minimum Thickness | 4mm |
 | Cable Clearance | 15mm each side |
 | SATA Extension | 130mm |
 | Feet Height | 8mm |
+| Cherry MX Cutout | 14mm x 14mm |
 
-### Screw Standoff Positions
+## Screw Standoff Positions
 
 The 23 mounting holes are positioned exactly according to the CAD schematic:
 - Hole sizes range from M2.5 to M3
-- Drill diameters extracted from schematic DRILL specifications
+- Positions are **mirrored** so RAM/fan face upward
 - All positions converted from mils to millimeters
-- **Standoffs are on the BOTTOM case** (screws insert from top)
+- Standoffs are on the base plate
 
-### 3D Printing Recommendations
+## 3D Printing Recommendations
 
 - **Material**: PLA or PETG recommended
-- **Layer Height**: 0.2mm for strength, 0.1mm for finer details
+- **Layer Height**: 0.2mm for strength
 - **Infill**: 20-30% for adequate strength
-- **Supports**: Generally not needed with this design
+- **Supports**: Not needed - all parts designed for printability
 - **Print Orientation**: 
-  - Bottom case: Print with open side facing up
-  - Top cover: Print with grille side facing up
+  - Base plate: Print flat
+  - Top cover: Print flat (grille side up)
+  - Edge pieces: Print standing on their long edge
   - Feet: Print standing up (tapered end down)
-  - Clips: Print flat
 
-### Assembly
+## Assembly
 
-1. Print bottom case, top cover, 6 feet, and 4 clips
-2. Attach feet to bottom case using M3 screws through floor holes
-3. Place motherboard on standoffs
-4. Secure board with screws from top (through board holes into standoffs)
-5. Attach clips to case walls
-6. Place top cover and secure with clips
+1. Print all parts: base, top, 4 edge pieces, 6 feet
+2. Attach feet to base plate using M3 screws through floor holes
+3. Place edge pieces onto the raised lip of the base plate
+4. Place motherboard on standoffs (fan facing UP)
+5. Secure board with screws from top (through board holes into standoffs)
+6. Install Cherry MX keyswitch in power button cutout (snug press-fit)
+7. Snap top cover onto edge pieces
 
-### Modifications
+## Power Button
 
-The design can be customized by modifying:
+The power button cutout is designed for a **Cherry MX style keyswitch**:
+- Standard 14mm x 14mm plate cutout
+- Snug fit (0.1mm tolerance) - no glue needed
+- Located on top cover near RAM area
+- Wire keyswitch to motherboard power button header
 
-1. `wall_thickness` - Case wall thickness (default 3mm)
-2. `side_height` - Height of elevated sides
-3. `cable_clearance` - Space for cables on each side
-4. `fan_grille_*` - Fan area grille position and size
-5. `cpu_grille_*` - CPU cooling grille position and size
-6. `grille_bar_width` and `grille_gap_width` - Ventilation grille dimensions
-7. Port cutout positions and sizes in the corresponding sections
+## Customization
 
-### License
+Key parameters that can be adjusted:
+
+1. `wall_thickness` - Base/cover thickness (default 3mm)
+2. `edge_min_thickness` - Edge piece thickness (default 4mm)
+3. `side_height` - Height of edges
+4. `cable_clearance` - Space for cables on each side
+5. `fan_grille_*` - Fan area grille position and size
+6. `cpu_grille_*` - CPU cooling grille position and size
+7. `power_button_x/y` - Power button position on top cover
+8. `cherry_mx_size` - Keyswitch cutout size (default 14mm)
+
+## License
 
 This design is provided for personal use with the Acer E5-574G-54XQ laptop motherboard.
