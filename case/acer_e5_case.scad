@@ -1,4 +1,4 @@
-$fn = 64; // Circle resolution for curved surfaces.
+$fn = 64; // Balances smoothness and render time; lower for previews, higher for final STL.
 
 board_corner_min = [30.550, 9.019];
 board_corner_max = [261.580, 207.137];
@@ -80,7 +80,7 @@ hdd_bay_size = [100, 70, 7];
 odd_bay_pos = [200, 140];
 odd_bay_size = [100, 70, 7];
 
-// Controls which part to render; override via -D on the OpenSCAD command line.
+// Controls which part to render; default is bottom for quick previews. Override via -D.
 part = "bottom"; // bottom, top, both
 
 module rounded_rect(size, r) {
@@ -96,7 +96,7 @@ module shell_body(height) {
 module shell_cavity(height) {
   translate(inner_min)
     linear_extrude(height = height)
-      rounded_rect(inner_size, max(corner_r - wall, 0));
+      rounded_rect(inner_size, max(corner_r - wall, 0)); // Avoid negative radius if walls are thicker than corners.
 }
 
 module snap_post(pos, drill) {

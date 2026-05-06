@@ -10,7 +10,7 @@ This folder contains a parametric OpenSCAD model for a two-piece, snap-fit case 
 - Top shell with latch slots, alignment features, and stackable feet/recesses.
 
 ## Coordinate system and assumptions
-- Units are millimeters; coordinates are derived from `da0zrtmb6d0.cad` (GENCAD `UNITS USER 1000`, converted from mils).
+- Units are millimeters; coordinates are derived from `da0zrtmb6d0.cad` (GENCAD `UNITS USER 1000`, converted from mils at 1 mil = 0.0254 mm).
 - The board outline is approximated using component extents because no explicit board outline polygon is defined in the CAD data.
 - Fan/heatsink, drive bay positions, and optional audio/DC ports are adjustable parameters.
 
