@@ -114,7 +114,7 @@ module shell_body(height) {
 module shell_cavity(height) {
   translate(inner_min)
     linear_extrude(height = height)
-      rounded_rect(inner_size, max(corner_r - wall, min_corner_radius)); // Avoid negative radius if walls are thicker than corners.
+      rounded_rect(inner_size, max(corner_r - wall, min_corner_radius)); // Avoid negative radius if wall thickness exceeds corner radius.
 }
 
 module snap_post(pos, drill) {
