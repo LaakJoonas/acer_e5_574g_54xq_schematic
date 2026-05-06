@@ -26,6 +26,15 @@ outer_min = [inner_min[0] - wall, inner_min[1] - wall];
 outer_max = [inner_max[0] + wall, inner_max[1] + wall];
 outer_size = [outer_max[0] - outer_min[0], outer_max[1] - outer_min[1]];
 
+top_clearance = 0.6;
+top_overlap_height = 8;
+top_inner_min = [outer_min[0] - top_clearance, outer_min[1] - top_clearance];
+top_inner_max = [outer_max[0] + top_clearance, outer_max[1] + top_clearance];
+top_inner_size = [top_inner_max[0] - top_inner_min[0], top_inner_max[1] - top_inner_min[1]];
+top_outer_min = [top_inner_min[0] - wall, top_inner_min[1] - wall];
+top_outer_max = [top_inner_max[0] + wall, top_inner_max[1] + wall];
+top_outer_size = [top_outer_max[0] - top_outer_min[0], top_outer_max[1] - top_outer_min[1]];
+
 board_z = base + standoff_h;
 snap_post_extra_height = 0.4;
 snap_head_drop = 0.2;
@@ -41,9 +50,10 @@ drive_clip_overhang = 1.2;
 drive_clip_height = 2;
 drive_clip_offset = 6;
 foot_d = 10;
-foot_h = 3;
 foot_recess_clearance = 0.6;
 foot_recess_depth = 2.4;
+stack_gap = 20;
+foot_h = foot_recess_depth + stack_gap;
 latch_slot_offset = 0.2;
 latch_slot_x_extra = 0.6;
 latch_slot_y_extra = 0.4;
@@ -91,14 +101,18 @@ heatsink_extra_height = 8;
 foot_inset = 16;
 latch_spacing = 40;
 
-hdd_bay_pos = [90, 150];
 hdd_bay_size = [100, 70, 7];
 
-odd_bay_pos = [200, 140];
 odd_bay_size = [100, 70, 7];
 
-// Controls which part to render; default is bottom for quick previews. Override via -D.
-part = "bottom"; // bottom, top, both
+sata_hdd_connector = [256.000, 53.700];
+sata_odd_connector = [261.580, 109.609];
+drive_bay_center_x = outer_max[0] - wall - (hdd_bay_size[0] / 2);
+hdd_bay_pos = [drive_bay_center_x, sata_hdd_connector[1]];
+odd_bay_pos = [drive_bay_center_x, sata_odd_connector[1]];
+
+// Controls which part to render; default shows both. Override via -D.
+part = "both"; // bottom, top, both
 
 // size = [width, height], r = corner radius.
 module rounded_rect(size, r) {
@@ -115,6 +129,18 @@ module shell_cavity(height) {
   translate(inner_min)
     linear_extrude(height = height)
       rounded_rect(inner_size, max(corner_r - wall, min_corner_radius)); // Avoid negative radius if wall thickness exceeds corner radius.
+}
+
+module top_shell_body(height) {
+  translate(top_outer_min)
+    linear_extrude(height = height)
+      rounded_rect(top_outer_size, corner_r);
+}
+
+module top_shell_cavity(height) {
+  translate(top_inner_min)
+    linear_extrude(height = height)
+      rounded_rect(top_inner_size, max(corner_r - wall, min_corner_radius));
 }
 
 module snap_post(pos, drill) {
@@ -157,6 +183,20 @@ module port_cutouts_right() {
   }
 }
 
+module port_cutouts_left_top() {
+  for (p = ports_left) {
+    translate([top_outer_min[0] - 1, p[0] - p[1] / 2, board_z - 1])
+      cube([wall + 2, p[1], p[2]]);
+  }
+}
+
+module port_cutouts_right_top() {
+  for (p = ports_right) {
+    translate([top_outer_max[0] - wall - 1, p[0] - p[1] / 2, board_z - 1])
+      cube([wall + 2, p[1], p[2]]);
+  }
+}
+
 module port_cutouts_front() {
   for (p = ports_front) {
     translate([p[0] - p[1] / 2, outer_min[1] - 1, board_z - 1])
@@ -164,9 +204,23 @@ module port_cutouts_front() {
   }
 }
 
+module port_cutouts_front_top() {
+  for (p = ports_front) {
+    translate([p[0] - p[1] / 2, top_outer_min[1] - 1, board_z - 1])
+      cube([p[1], wall + 2, p[2]]);
+  }
+}
+
 module port_cutouts_back() {
   for (p = ports_back) {
     translate([p[0] - p[1] / 2, outer_max[1] - wall - 1, board_z - 1])
+      cube([p[1], wall + 2, p[2]]);
+  }
+}
+
+module port_cutouts_back_top() {
+  for (p = ports_back) {
+    translate([p[0] - p[1] / 2, top_outer_max[1] - wall - 1, board_z - 1])
       cube([p[1], wall + 2, p[2]]);
   }
 }
@@ -234,9 +288,9 @@ module latch_tabs() {
   tab_h = 8;
   tab_y = latch_positions();
   for (y = tab_y) {
-    translate([outer_min[0] - tab_t, y - tab_w / 2, base + bottom_internal - tab_h])
+    translate([top_outer_min[0] - tab_t, y - tab_w / 2, base + bottom_internal - tab_h])
       cube([tab_t, tab_w, tab_h]);
-    translate([outer_max[0], y - tab_w / 2, base + bottom_internal - tab_h])
+    translate([top_outer_max[0], y - tab_w / 2, base + bottom_internal - tab_h])
       cube([tab_t, tab_w, tab_h]);
   }
 }
@@ -247,9 +301,9 @@ module latch_slots() {
   tab_h = 8.5;
   tab_y = latch_positions();
   for (y = tab_y) {
-    translate([outer_min[0] - tab_t - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
+    translate([top_outer_min[0] - tab_t - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
       cube([tab_t + latch_slot_x_extra, tab_w + latch_slot_y_extra, tab_h]);
-    translate([outer_max[0] - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
+    translate([top_outer_max[0] - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
       cube([tab_t + latch_slot_x_extra, tab_w + latch_slot_y_extra, tab_h]);
   }
 }
@@ -277,10 +331,14 @@ module bottom_shell() {
 module top_shell() {
   union() {
     difference() {
-      shell_body(lid + top_internal);
-      translate([0, 0, lid]) shell_cavity(top_internal + 1);
+      top_shell_body(lid + top_internal + top_overlap_height);
+      translate([0, 0, lid]) top_shell_cavity(top_internal + top_overlap_height + 1);
       translate([heatsink_center[0] - heatsink_size[0] / 2, heatsink_center[1] - heatsink_size[1] / 2, lid])
         cube([heatsink_size[0], heatsink_size[1], top_internal + heatsink_extra_height]);
+      port_cutouts_left_top();
+      port_cutouts_right_top();
+      port_cutouts_front_top();
+      port_cutouts_back_top();
       latch_slots();
       top_recesses();
     }

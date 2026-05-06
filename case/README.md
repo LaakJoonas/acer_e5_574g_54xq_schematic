@@ -6,7 +6,7 @@ This folder contains a parametric OpenSCAD model for a two-piece, snap-fit case 
 - Bottom shell with snap-posts through six motherboard holes (no screws required).
 - Mesh intake under the fan area, plus clip tabs to retain the fan/heatsink region.
 - Cutouts for RJ45, USB, HDMI, SD card, and a rear power port (moved from the original side location).
-- Tool-less drive bays for the 2.5" SSD and optical-bay HDD adapter.
+- Tool-less drive bays for the 2.5" SSD and optical-bay HDD adapter, aligned to the SATA connector locations.
 - Top shell with latch slots, alignment features, and stackable feet/recesses.
 
 ## Coordinate system and assumptions
@@ -26,4 +26,5 @@ openscad -o acer_e5_case_top.stl -D 'part="top"' case/acer_e5_case.scad
 - `fan_center`, `fan_diameter`, `heatsink_size`, `heatsink_extra_height`
 - `ports_right` for audio/headphone or other side ports
 - `hdd_bay_pos`, `odd_bay_pos` for drive placement
+- `stack_gap` to leave space for the laptop power supply between stacked cases
 - `case_margin`, `wall`, `lip_clearance` to match printer tolerances
