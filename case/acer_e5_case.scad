@@ -1,7 +1,5 @@
 $fn = 64;
 
-mil = 0.0254;
-
 board_min = [30.550, 9.019];
 board_max = [261.580, 207.137];
 
@@ -62,10 +60,14 @@ ports_right = [
 fan_center = [210, 170];
 fan_diameter = 55;
 fan_mesh_pitch = 6;
+fan_clip_offset = 5;
 
 heatsink_center = [210, 170];
 heatsink_size = [70, 55];
 heatsink_extra_height = 8;
+
+foot_inset = 16;
+latch_spacing = 40;
 
 hdd_bay_pos = [90, 150];
 hdd_bay_size = [100, 70, 7];
@@ -109,9 +111,10 @@ module snap_posts() {
 
 module fan_mesh_cut() {
   radius = fan_diameter / 2;
+  radius_squared = radius * radius;
   for (x = [-radius : fan_mesh_pitch : radius])
     for (y = [-radius : fan_mesh_pitch : radius])
-      if (x * x + y * y <= radius * radius)
+      if (x * x + y * y <= radius_squared)
         translate([fan_center[0] + x, fan_center[1] + y, 0])
           cylinder(h = base + 0.6, d = 3);
 }
@@ -166,7 +169,7 @@ module fan_clips() {
   clip_w = 6;
   clip_t = 2;
   clip_h = 8;
-  offsets = [[fan_diameter/2 + 5, 0], [-(fan_diameter/2 + 5), 0], [0, fan_diameter/2 + 5], [0, -(fan_diameter/2 + 5)]];
+  offsets = [[fan_diameter / 2 + fan_clip_offset, 0], [-(fan_diameter / 2 + fan_clip_offset), 0], [0, fan_diameter / 2 + fan_clip_offset], [0, -(fan_diameter / 2 + fan_clip_offset)]];
   for (o = offsets)
     translate([fan_center[0] + o[0] - clip_w / 2, fan_center[1] + o[1] - clip_t / 2, base])
       cube([clip_w, clip_t, clip_h]);
@@ -175,7 +178,7 @@ module fan_clips() {
 module feet() {
   foot_d = 10;
   foot_h = 3;
-  offsets = [[16, 16], [outer_size[0] - 16, 16], [16, outer_size[1] - 16], [outer_size[0] - 16, outer_size[1] - 16]];
+  offsets = corner_offsets(foot_inset);
   for (o = offsets)
     translate([outer_min[0] + o[0], outer_min[1] + o[1], 0])
       cylinder(h = foot_h, d = foot_d);
@@ -184,17 +187,29 @@ module feet() {
 module top_recesses() {
   recess_d = 10.6;
   recess_h = 2.4;
-  offsets = [[16, 16], [outer_size[0] - 16, 16], [16, outer_size[1] - 16], [outer_size[0] - 16, outer_size[1] - 16]];
+  offsets = corner_offsets(foot_inset);
   for (o = offsets)
     translate([outer_min[0] + o[0], outer_min[1] + o[1], 0])
       cylinder(h = recess_h, d = recess_d);
 }
 
+function corner_offsets(inset) = [
+  [inset, inset],
+  [outer_size[0] - inset, inset],
+  [inset, outer_size[1] - inset],
+  [outer_size[0] - inset, outer_size[1] - inset]
+];
+
+function latch_positions() = [
+  (outer_min[1] + outer_max[1]) / 2 - latch_spacing,
+  (outer_min[1] + outer_max[1]) / 2 + latch_spacing
+];
+
 module latch_tabs() {
   tab_w = 10;
   tab_t = 1.6;
   tab_h = 8;
-  tab_y = [(outer_min[1] + outer_max[1]) / 2 - 40, (outer_min[1] + outer_max[1]) / 2 + 40];
+  tab_y = latch_positions();
   for (y = tab_y) {
     translate([outer_min[0] - tab_t, y - tab_w / 2, base + bottom_internal - tab_h])
       cube([tab_t, tab_w, tab_h]);
@@ -207,7 +222,7 @@ module latch_slots() {
   tab_w = 10;
   tab_t = 1.8;
   tab_h = 8.5;
-  tab_y = [(outer_min[1] + outer_max[1]) / 2 - 40, (outer_min[1] + outer_max[1]) / 2 + 40];
+  tab_y = latch_positions();
   for (y = tab_y) {
     translate([outer_min[0] - tab_t - 0.2, y - tab_w / 2 - 0.2, lid])
       cube([tab_t + 0.6, tab_w + 0.4, tab_h]);
