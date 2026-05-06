@@ -1,7 +1,7 @@
 $fn = 64;
 
-board_min = [30.550, 9.019];
-board_max = [261.580, 207.137];
+board_corner_min = [30.550, 9.019];
+board_corner_max = [261.580, 207.137];
 
 case_margin = 6;
 wall = 2.4;
@@ -18,8 +18,8 @@ top_internal = 18;
 
 lip_clearance = 0.4;
 
-inner_min = [board_min[0] - case_margin, board_min[1] - case_margin];
-inner_max = [board_max[0] + case_margin, board_max[1] + case_margin];
+inner_min = [board_corner_min[0] - case_margin, board_corner_min[1] - case_margin];
+inner_max = [board_corner_max[0] + case_margin, board_corner_max[1] + case_margin];
 inner_size = [inner_max[0] - inner_min[0], inner_max[1] - inner_min[1]];
 
 outer_min = [inner_min[0] - wall, inner_min[1] - wall];
@@ -94,9 +94,12 @@ module shell_cavity(height) {
 }
 
 module snap_post(pos, drill) {
-  post_d = max(drill - 0.4, 2.4);
-  head_d = drill + 0.8;
+  post_clearance = 0.4;
+  post_min_d = 2.4;
+  head_clearance = 0.8;
   head_h = 1.2;
+  post_d = max(drill - post_clearance, post_min_d);
+  head_d = drill + head_clearance;
   translate([pos[0], pos[1], base]) {
     cylinder(h = standoff_h + board_thickness + 0.4, d = post_d);
     translate([0, 0, standoff_h + board_thickness - 0.2])
@@ -169,7 +172,8 @@ module fan_clips() {
   clip_w = 6;
   clip_t = 2;
   clip_h = 8;
-  offsets = [[fan_diameter / 2 + fan_clip_offset, 0], [-(fan_diameter / 2 + fan_clip_offset), 0], [0, fan_diameter / 2 + fan_clip_offset], [0, -(fan_diameter / 2 + fan_clip_offset)]];
+  fan_clip_span = fan_diameter / 2 + fan_clip_offset;
+  offsets = [[fan_clip_span, 0], [-fan_clip_span, 0], [0, fan_clip_span], [0, -fan_clip_span]];
   for (o = offsets)
     translate([fan_center[0] + o[0] - clip_w / 2, fan_center[1] + o[1] - clip_t / 2, base])
       cube([clip_w, clip_t, clip_h]);
@@ -268,6 +272,9 @@ if (part == "bottom") {
   bottom_shell();
 } else if (part == "top") {
   top_shell();
+} else if (part == "both") {
+  bottom_shell();
+  translate([0, 0, base + bottom_internal + 5]) top_shell();
 } else {
   bottom_shell();
   translate([0, 0, base + bottom_internal + 5]) top_shell();

@@ -3,7 +3,7 @@
 This folder contains a parametric OpenSCAD model for a two-piece, snap-fit case based on the GENCAD placement data in this repository.
 
 ## What the model includes
-- Bottom shell with snap-posts through at least five motherboard holes (no screws required).
+- Bottom shell with snap-posts through six motherboard holes (no screws required).
 - Mesh intake under the fan area, plus clip tabs to retain the fan/heatsink region.
 - Cutouts for RJ45, USB, HDMI, SD card, and a relocated rear power port.
 - Tool-less drive bays for the 2.5" SSD and optical-bay HDD adapter.
