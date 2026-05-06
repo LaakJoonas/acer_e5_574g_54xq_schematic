@@ -1,4 +1,4 @@
-$fn = 64;
+$fn = 64; // Circle resolution for curved surfaces.
 
 board_corner_min = [30.550, 9.019];
 board_corner_max = [261.580, 207.137];
@@ -27,6 +27,9 @@ outer_max = [inner_max[0] + wall, inner_max[1] + wall];
 outer_size = [outer_max[0] - outer_min[0], outer_max[1] - outer_min[1]];
 
 board_z = base + standoff_h;
+post_extra_height = 0.4;
+snap_head_drop = 0.2;
+drive_bay_z_offset = 1.5;
 
 holes = [
   [34.500, 11.200, 3.404],
@@ -61,6 +64,8 @@ fan_center = [210, 170];
 fan_diameter = 55;
 fan_mesh_pitch = 6;
 fan_clip_offset = 5;
+fan_mesh_extra_depth = 0.6;
+fan_mesh_hole_d = 3;
 
 heatsink_center = fan_center;
 heatsink_size = [70, 55];
@@ -75,6 +80,7 @@ hdd_bay_size = [100, 70, 7];
 odd_bay_pos = [200, 140];
 odd_bay_size = [100, 70, 7];
 
+// Controls which part to render; override via -D on the OpenSCAD command line.
 part = "bottom"; // bottom, top, both
 
 module rounded_rect(size, r) {
@@ -101,8 +107,8 @@ module snap_post(pos, drill) {
   post_d = max(drill - post_clearance, post_min_d);
   head_d = drill + head_clearance;
   translate([pos[0], pos[1], base]) {
-    cylinder(h = standoff_h + board_thickness + 0.4, d = post_d);
-    translate([0, 0, standoff_h + board_thickness - 0.2])
+    cylinder(h = standoff_h + board_thickness + post_extra_height, d = post_d);
+    translate([0, 0, standoff_h + board_thickness - snap_head_drop])
       cylinder(h = head_h, d1 = post_d, d2 = head_d);
   }
 }
@@ -119,7 +125,7 @@ module fan_mesh_cut() {
     for (y = [-radius : fan_mesh_pitch : radius])
       if (x * x + y * y <= radius_squared)
         translate([fan_center[0] + x, fan_center[1] + y, 0])
-          cylinder(h = base + 0.6, d = 3);
+          cylinder(h = base + fan_mesh_extra_depth, d = fan_mesh_hole_d);
 }
 
 module port_cutouts_left() {
@@ -156,7 +162,7 @@ module drive_bay(center, size) {
   bay_h = size[2];
   rail_t = 2;
   rail_h = bay_h + 3;
-  z0 = base + 1.5;
+  z0 = base + drive_bay_z_offset;
 
   translate([center[0] - bay_x / 2, center[1] - bay_y / 2, z0]) {
     cube([bay_x, rail_t, rail_h]);
