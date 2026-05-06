@@ -30,8 +30,25 @@ board_z = base + standoff_h;
 snap_post_extra_height = 0.4;
 snap_head_drop = 0.2;
 drive_bay_z_offset = 1.5;
+min_corner_radius = 0;
+snap_post_clearance = 0.4;
+snap_post_min_d = 2.4;
+snap_head_clearance = 0.8;
+snap_head_height = 1.2;
+rail_height_margin = 3;
+drive_clip_width = 12;
+drive_clip_overhang = 1.2;
+drive_clip_height = 2;
+drive_clip_offset = 6;
+foot_d = 10;
+foot_h = 3;
+foot_recess_clearance = 0.6;
+foot_recess_depth = 2.4;
+latch_slot_offset = 0.2;
+latch_slot_x_extra = 0.6;
+latch_slot_y_extra = 0.4;
 
-holes = [
+mounting_holes = [
   [34.500, 11.200, 3.404],
   [246.000, 11.200, 3.404],
   [33.399, 105.499, 2.845],
@@ -83,6 +100,7 @@ odd_bay_size = [100, 70, 7];
 // Controls which part to render; default is bottom for quick previews. Override via -D.
 part = "bottom"; // bottom, top, both
 
+// size = [width, height], r = corner radius.
 module rounded_rect(size, r) {
   offset(r = r) square([size[0] - 2 * r, size[1] - 2 * r], center = false);
 }
@@ -96,16 +114,13 @@ module shell_body(height) {
 module shell_cavity(height) {
   translate(inner_min)
     linear_extrude(height = height)
-      rounded_rect(inner_size, max(corner_r - wall, 0)); // Avoid negative radius if walls are thicker than corners.
+      rounded_rect(inner_size, max(corner_r - wall, min_corner_radius)); // Avoid negative radius if walls are thicker than corners.
 }
 
 module snap_post(pos, drill) {
-  post_clearance = 0.4;
-  post_min_d = 2.4;
-  head_clearance = 0.8;
-  head_h = 1.2;
-  post_d = max(drill - post_clearance, post_min_d);
-  head_d = drill + head_clearance;
+  head_h = snap_head_height;
+  post_d = max(drill - snap_post_clearance, snap_post_min_d);
+  head_d = drill + snap_head_clearance;
   translate([pos[0], pos[1], base]) {
     cylinder(h = standoff_h + board_thickness + snap_post_extra_height, d = post_d);
     translate([0, 0, standoff_h + board_thickness - snap_head_drop])
@@ -114,7 +129,7 @@ module snap_post(pos, drill) {
 }
 
 module snap_posts() {
-  for (h = holes)
+  for (h = mounting_holes)
     snap_post([h[0], h[1]], h[2]);
 }
 
@@ -161,7 +176,7 @@ module drive_bay(center, size) {
   bay_y = size[1];
   bay_h = size[2];
   rail_t = 2;
-  rail_h = bay_h + 3;
+  rail_h = bay_h + rail_height_margin;
   z0 = base + drive_bay_z_offset;
 
   translate([center[0] - bay_x / 2, center[1] - bay_y / 2, z0]) {
@@ -169,8 +184,8 @@ module drive_bay(center, size) {
     translate([0, bay_y - rail_t, 0]) cube([bay_x, rail_t, rail_h]);
     cube([rail_t, bay_y, rail_h]);
     translate([bay_x - rail_t, 0, 0]) cube([rail_t, bay_y, rail_h]);
-    translate([bay_x / 2 - 6, bay_y - rail_t, rail_h - 2])
-      cube([12, rail_t + 1.2, 2]);
+    translate([bay_x / 2 - drive_clip_offset, bay_y - rail_t, rail_h - drive_clip_height])
+      cube([drive_clip_width, rail_t + drive_clip_overhang, drive_clip_height]);
   }
 }
 
@@ -186,8 +201,6 @@ module fan_clips() {
 }
 
 module feet() {
-  foot_d = 10;
-  foot_h = 3;
   offsets = corner_offsets(foot_inset);
   for (o = offsets)
     translate([outer_min[0] + o[0], outer_min[1] + o[1], 0])
@@ -195,8 +208,8 @@ module feet() {
 }
 
 module top_recesses() {
-  recess_d = 10.6;
-  recess_h = 2.4;
+  recess_d = foot_d + foot_recess_clearance;
+  recess_h = foot_recess_depth;
   offsets = corner_offsets(foot_inset);
   for (o = offsets)
     translate([outer_min[0] + o[0], outer_min[1] + o[1], 0])
@@ -234,10 +247,10 @@ module latch_slots() {
   tab_h = 8.5;
   tab_y = latch_positions();
   for (y = tab_y) {
-    translate([outer_min[0] - tab_t - 0.2, y - tab_w / 2 - 0.2, lid])
-      cube([tab_t + 0.6, tab_w + 0.4, tab_h]);
-    translate([outer_max[0] - 0.2, y - tab_w / 2 - 0.2, lid])
-      cube([tab_t + 0.6, tab_w + 0.4, tab_h]);
+    translate([outer_min[0] - tab_t - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
+      cube([tab_t + latch_slot_x_extra, tab_w + latch_slot_y_extra, tab_h]);
+    translate([outer_max[0] - latch_slot_offset, y - tab_w / 2 - latch_slot_offset, lid])
+      cube([tab_t + latch_slot_x_extra, tab_w + latch_slot_y_extra, tab_h]);
   }
 }
 
