@@ -62,7 +62,7 @@ fan_diameter = 55;
 fan_mesh_pitch = 6;
 fan_clip_offset = 5;
 
-heatsink_center = [210, 170];
+heatsink_center = fan_center;
 heatsink_size = [70, 55];
 heatsink_extra_height = 8;
 
