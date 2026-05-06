@@ -18,8 +18,8 @@ This folder contains a parametric OpenSCAD model for a two-piece, snap-fit case 
 OpenSCAD is required to generate STL files:
 
 ```bash
-openscad -o acer_e5_case_bottom.stl -D 'part="bottom"' acer_e5_case.scad
-openscad -o acer_e5_case_top.stl -D 'part="top"' acer_e5_case.scad
+openscad -o acer_e5_case_bottom.stl -D 'part="bottom"' case/acer_e5_case.scad
+openscad -o acer_e5_case_top.stl -D 'part="top"' case/acer_e5_case.scad
 ```
 
 ## Adjustments to review before printing

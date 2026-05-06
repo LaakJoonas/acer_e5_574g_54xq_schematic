@@ -27,7 +27,7 @@ outer_max = [inner_max[0] + wall, inner_max[1] + wall];
 outer_size = [outer_max[0] - outer_min[0], outer_max[1] - outer_min[1]];
 
 board_z = base + standoff_h;
-post_extra_height = 0.4;
+snap_post_extra_height = 0.4;
 snap_head_drop = 0.2;
 drive_bay_z_offset = 1.5;
 
@@ -107,7 +107,7 @@ module snap_post(pos, drill) {
   post_d = max(drill - post_clearance, post_min_d);
   head_d = drill + head_clearance;
   translate([pos[0], pos[1], base]) {
-    cylinder(h = standoff_h + board_thickness + post_extra_height, d = post_d);
+    cylinder(h = standoff_h + board_thickness + snap_post_extra_height, d = post_d);
     translate([0, 0, standoff_h + board_thickness - snap_head_drop])
       cylinder(h = head_h, d1 = post_d, d2 = head_d);
   }
