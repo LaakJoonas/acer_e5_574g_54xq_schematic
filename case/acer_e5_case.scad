@@ -270,12 +270,11 @@ module top_shell() {
 
 if (part == "bottom") {
   bottom_shell();
-} else if (part == "top") {
+}
+if (part == "top") {
   top_shell();
-} else if (part == "both") {
-  bottom_shell();
-  translate([0, 0, base + bottom_internal + 5]) top_shell();
-} else {
+}
+if (part == "both") {
   bottom_shell();
   translate([0, 0, base + bottom_internal + 5]) top_shell();
 }
